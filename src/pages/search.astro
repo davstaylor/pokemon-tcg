@@ -1,9 +1,38 @@
 ---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import Base from '@/layouts/Base.astro';
 import SearchBox from '@/components/SearchBox';
+import FacetSidebar from '@/components/FacetSidebar';
+import CardTile from '@/components/CardTile.astro';
+import type { CardIdentity } from '@/data/schema';
+
+const cards: CardIdentity[] = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
+);
 const q = new URL(Astro.request.url).searchParams.get('q') ?? '';
 ---
 <Base title={`Search — Pokémon TCG Catalog`}>
   <h1>Search</h1>
   <SearchBox client:load initialQuery={q} />
+
+  <div style="display:grid;grid-template-columns:220px 1fr;gap:2rem;margin-top:2rem;">
+    <FacetSidebar client:load cards={cards} onFilter={(filtered) => {
+      document.querySelectorAll('[data-card-tile]').forEach((el) => {
+        const id = el.getAttribute('data-card-id');
+        (el as HTMLElement).style.display = filtered.some((c: CardIdentity) => c.id === id) ? '' : 'none';
+      });
+      document.querySelector('[data-result-count]')!.textContent = String(filtered.length);
+    }} />
+    <div>
+      <p><span data-result-count>{cards.length}</span> cards</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.5rem;">
+        {cards.map((card) => (
+          <div data-card-tile data-card-id={card.id}>
+            <CardTile card={card} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
 </Base>
