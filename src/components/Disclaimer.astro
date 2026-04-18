@@ -1,0 +1,24 @@
+---
+import { BUILD_TIMESTAMP } from '@/lib/build-meta';
+---
+<footer class="disclaimer">
+  <p>
+    Catalog data via <a href="https://tcgdex.dev" target="_blank" rel="noopener">TCGdex</a> (open source).
+    Card images © The Pokémon Company. Translation and print data may contain inaccuracies — verify with TCGdex before acting on it.
+  </p>
+  <p class="build-stamp">Data last built: <time datetime={BUILD_TIMESTAMP}>{BUILD_TIMESTAMP}</time></p>
+</footer>
+
+<style>
+  .disclaimer {
+    margin-top: 4rem;
+    padding: 1.5rem;
+    border-top: 1px solid #e8ddc6;
+    background: #f5efe2;
+    color: #5a4a36;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+  .disclaimer a { color: #7a5e3a; text-decoration: underline; }
+  .build-stamp { opacity: 0.7; margin-top: 0.5rem; }
+</style>

@@ -1,0 +1,32 @@
+---
+import type { CardIdentity } from '@/data/schema';
+interface Props { card: CardIdentity }
+const { card } = Astro.props;
+const preferredPrint = card.prints.en ?? card.prints.ja ?? card.prints.ko ?? card.prints.zh!;
+---
+<a class="card-tile" href={`/pokemon-tcg/card/${card.id}`}>
+  {preferredPrint.imageURL ? (
+    <img src={preferredPrint.imageURL} alt={card.defaultName} loading="lazy" />
+  ) : (
+    <div class="placeholder">{card.id}</div>
+  )}
+  <div class="caption">
+    <strong>{card.defaultName}</strong>
+    <span>{card.filters.setId} · {card.filters.rarity}</span>
+  </div>
+</a>
+
+<style>
+  .card-tile {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 150ms ease;
+  }
+  .card-tile:hover { transform: translateY(-3px); }
+  .card-tile img { width: 100%; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  .placeholder { aspect-ratio: 2/3; background: #eee; display: grid; place-items: center; border-radius: 10px; }
+  .caption { margin-top: 0.5rem; font-size: 0.9rem; }
+  .caption span { display: block; color: #7a5e3a; font-size: 0.8rem; }
+</style>

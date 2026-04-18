@@ -1,8 +1,6 @@
 ---
-interface Props {
-  title: string;
-  description?: string;
-}
+import Disclaimer from '@/components/Disclaimer.astro';
+interface Props { title: string; description?: string }
 const { title, description = 'Pokémon TCG multilingual catalog' } = Astro.props;
 ---
 <!doctype html>
@@ -12,10 +10,27 @@ const { title, description = 'Pokémon TCG multilingual catalog' } = Astro.props
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <style is:global>
+      :root {
+        --bg: #f5efe2;
+        --paper: #fffdf6;
+        --ink: #3b2a1a;
+        --muted: #7a5e3a;
+        --accent: #c86f3d;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: 'Helvetica Neue', system-ui, sans-serif;
+        margin: 0;
+      }
+      main { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+      h1 { font-weight: 600; letter-spacing: -0.5px; }
+      a { color: var(--accent); }
+    </style>
   </head>
   <body>
-    <main>
-      <slot />
-    </main>
+    <main><slot /></main>
+    <Disclaimer />
   </body>
 </html>

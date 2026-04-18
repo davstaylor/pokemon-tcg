@@ -1,7 +1,44 @@
 ---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import Base from '@/layouts/Base.astro';
+import CardTile from '@/components/CardTile.astro';
+import type { CardIdentity } from '@/data/schema';
+
+const cards: CardIdentity[] = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
+);
+const featured = cards.slice(0, 6);
 ---
 <Base title="Pokémon TCG Catalog">
-  <h1>Pokémon TCG Catalog</h1>
-  <p>A multilingual reference for collectors.</p>
+  <header class="hero">
+    <h1>Pokémon TCG Catalog</h1>
+    <p class="tagline">Every regional print, on every card, in every language.</p>
+    <form action="/pokemon-tcg/search" method="get" class="search-stub">
+      <input type="search" name="q" placeholder="Search any card name in EN / JA / KO / ZH…" />
+      <button type="submit">Search</button>
+    </form>
+  </header>
+
+  <section>
+    <h2>Featured cards</h2>
+    <div class="grid">
+      {featured.map((card) => <CardTile card={card} />)}
+    </div>
+  </section>
 </Base>
+
+<style>
+  .hero { text-align: center; margin-bottom: 3rem; }
+  .tagline { color: var(--muted); font-size: 1.1rem; }
+  .search-stub { margin-top: 1.5rem; display: inline-flex; gap: 0.5rem; }
+  .search-stub input {
+    padding: 0.75rem 1rem; border-radius: 999px; border: 1px solid #d9c9a3;
+    width: min(500px, 70vw); background: var(--paper);
+  }
+  .search-stub button {
+    padding: 0.75rem 1.5rem; border-radius: 999px; border: 0;
+    background: var(--accent); color: white; cursor: pointer;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+</style>
