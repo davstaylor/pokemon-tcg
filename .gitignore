@@ -1,0 +1,22 @@
+# Brainstorming session artifacts (Claude Code visual companion)
+.superpowers/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.astro/
+.cache/
+
+# Env
+.env
+.env.local
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
