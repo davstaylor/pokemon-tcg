@@ -1,11 +1,8 @@
 {
   "name": "pokemon-tcg",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "description": "Multilingual Pokémon TCG catalog — search any card in EN/JA/KO/ZH and see every regional print side-by-side.",
+  "private": true,
   "scripts": {
     "dev": "astro dev",
     "build": "tsx scripts/fetch-and-build-data.ts && astro build && pagefind --site dist",
