@@ -21,8 +21,8 @@ export default function SearchBox({ initialQuery = '' }: { initialQuery?: string
   useEffect(() => {
     (async () => {
       if (!window.pagefind) {
-        // @ts-expect-error — pagefind is generated at build time, not resolvable at typecheck time
-        window.pagefind = await import(/* @vite-ignore */ '/pokemon-tcg/pagefind/pagefind.js') as unknown as Pagefind;
+        const pagefindUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/pagefind/pagefind.js`;
+        window.pagefind = await import(/* @vite-ignore */ pagefindUrl) as unknown as Pagefind;
       }
       pagefindRef.current = window.pagefind;
       if (initialQuery) handleSearch(initialQuery);
