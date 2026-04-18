@@ -157,12 +157,12 @@ Metadata panel below the gallery: HP, types, attacks, artist, release date, flav
 This section exists so v1's architecture doesn't paint us into a corner later. We don't build any of it yet.
 
 - **Separate workflow** runs every 5 minutes (GitHub Actions minimum cron granularity, which the user has confirmed is acceptable)
-- **Fetches** from multiple sources for a curated watchlist of tracked cards. Known candidate sources:
-  - [TCGdex market prices](https://tcgdex.dev/markets-prices) — catalog-aligned, likely the easiest first integration since the rest of the catalog already comes from TCGdex
-  - eBay completed listings (Finding API)
-  - Cardmarket public API
-  - TCGplayer pricing (requires API approval)
-  - Aggregation layer reconciles these into a single per-card price record
+- **Fetches** from multiple sources for a curated watchlist of tracked cards. Known source landscape (as of 2026-04):
+  - [TCGdex market prices](https://tcgdex.dev/markets-prices) — **viable.** Catalog-aligned, likely the easiest first integration since the rest of the catalog already comes from TCGdex
+  - eBay — **viable via the public Browse / Finding APIs** for completed listings
+  - **Cardmarket — API access NOT currently available to the public.** Not a viable v2 source.
+  - **TCGplayer — API access NOT currently open.** Not a viable v2 source.
+  - Aggregation layer reconciles the available sources into a single per-card price record. We'll revisit Cardmarket/TCGplayer if their API policies change.
 - **Writes** `prices.json` to a dedicated `data` branch
 - **Site** polls `prices.json` on card-page load — no rebuild required for price freshness
 - **Visualisation:** sparkline on card page, "latest sale" stat tile in the B-style data-tile language discussed in §8
