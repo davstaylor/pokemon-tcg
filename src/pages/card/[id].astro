@@ -16,9 +16,12 @@ interface Props { card: CardIdentity }
 const { card } = Astro.props;
 ---
 <Base title={`${card.defaultName} — Pokémon TCG Catalog`}>
-  <article>
+  <article data-pagefind-body data-pagefind-meta={`title:${card.defaultName}`}>
     <h1>{card.defaultName}</h1>
     <PrintGallery card={card} />
+    <div style="position:absolute;left:-9999px" aria-hidden="true">
+      {card.searchTokens.join(' ')}
+    </div>
     <aside>
       <p>Set: {card.filters.setId}</p>
       <p>Rarity: {card.filters.rarity}</p>
