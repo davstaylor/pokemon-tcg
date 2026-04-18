@@ -1,0 +1,28 @@
+---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '@/layouts/Base.astro';
+import PrintGallery from '@/components/PrintGallery.astro';
+import type { CardIdentity } from '@/data/schema';
+
+export async function getStaticPaths() {
+  const cards: CardIdentity[] = JSON.parse(
+    readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
+  );
+  return cards.map((card) => ({ params: { id: card.id }, props: { card } }));
+}
+
+interface Props { card: CardIdentity }
+const { card } = Astro.props;
+---
+<Base title={`${card.defaultName} — Pokémon TCG Catalog`}>
+  <article>
+    <h1>{card.defaultName}</h1>
+    <PrintGallery card={card} />
+    <aside>
+      <p>Set: {card.filters.setId}</p>
+      <p>Rarity: {card.filters.rarity}</p>
+      <p>Types: {card.filters.types.join(', ') || '—'}</p>
+    </aside>
+  </article>
+</Base>

@@ -1,0 +1,32 @@
+---
+import type { CardIdentity } from '@/data/schema';
+interface Props { card: CardIdentity }
+const { card } = Astro.props;
+const printEntries = Object.entries(card.prints) as Array<[string, NonNullable<typeof card.prints.en>]>;
+---
+<section class="print-gallery" data-card-id={card.id}>
+  {printEntries.map(([lang, print]) => (
+    <figure class="print">
+      <span class="lang-label">{lang.toUpperCase()}</span>
+      {print.imageURL ? (
+        <img src={print.imageURL} alt={print.name} loading="lazy" />
+      ) : (
+        <div class="image-placeholder">{card.id}</div>
+      )}
+      <figcaption>{print.name}</figcaption>
+    </figure>
+  ))}
+</section>
+
+<style>
+  .print-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+  .print { margin: 0; text-align: center; }
+  .print img { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .lang-label { font-size: 0.75rem; letter-spacing: 2px; color: #7a5e3a; }
+  .image-placeholder { aspect-ratio: 2/3; background: #eee; display: grid; place-items: center; border-radius: 10px; }
+  figcaption { margin-top: 0.5rem; font-weight: 600; }
+</style>
