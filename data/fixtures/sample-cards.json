@@ -1,0 +1,15 @@
+{
+  "en": [
+    { "id": "base1-4", "localId": "4", "name": "Charizard", "image": "https://assets.tcgdex.net/en/base/base1/4", "set": { "id": "base1", "name": "Base", "symbol": "https://assets.tcgdex.net/en/base/base1/symbol", "serie": { "id": "base", "name": "Base" }, "releaseDate": "1999-01-09" }, "rarity": "Holo Rare", "hp": 120, "types": ["Fire"], "attacks": [], "illustrator": "Mitsuhiro Arita", "description": "Spits fire that is hot enough to melt boulders." },
+    { "id": "base1-2", "localId": "2", "name": "Blastoise", "image": "https://assets.tcgdex.net/en/base/base1/2", "set": { "id": "base1", "name": "Base", "symbol": "https://assets.tcgdex.net/en/base/base1/symbol", "serie": { "id": "base", "name": "Base" }, "releaseDate": "1999-01-09" }, "rarity": "Holo Rare", "hp": 100, "types": ["Water"], "attacks": [], "illustrator": "Ken Sugimori", "description": null }
+  ],
+  "ja": [
+    { "id": "base1-4", "localId": "4", "name": "リザードン", "image": "https://assets.tcgdex.net/ja/base/base1/4", "set": { "id": "base1", "name": "拡張パック", "symbol": "https://assets.tcgdex.net/ja/base/base1/symbol", "serie": { "id": "base", "name": "Base" }, "releaseDate": "1996-10-20" }, "rarity": "Holo Rare", "hp": 120, "types": ["Fire"], "attacks": [], "illustrator": "Mitsuhiro Arita", "description": null }
+  ],
+  "ko": [
+    { "id": "base1-4", "localId": "4", "name": "리자몽", "image": "https://assets.tcgdex.net/ko/base/base1/4", "set": { "id": "base1", "name": "베이스", "symbol": "https://assets.tcgdex.net/ko/base/base1/symbol", "serie": { "id": "base", "name": "Base" }, "releaseDate": "1999-10-20" }, "rarity": "Holo Rare", "hp": 120, "types": ["Fire"], "attacks": [], "illustrator": "Mitsuhiro Arita", "description": null }
+  ],
+  "zh": [
+    { "id": "base1-4", "localId": "4", "name": "喷火龙", "image": "https://assets.tcgdex.net/zh-tw/base/base1/4", "set": { "id": "base1", "name": "基本系列", "symbol": "https://assets.tcgdex.net/zh-tw/base/base1/symbol", "serie": { "id": "base", "name": "Base" }, "releaseDate": "2000-03-01" }, "rarity": "Holo Rare", "hp": 120, "types": ["Fire"], "attacks": [], "illustrator": "Mitsuhiro Arita", "description": null }
+  ]
+}
