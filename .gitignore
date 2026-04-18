@@ -20,3 +20,10 @@ dist/
 .vscode/
 .idea/
 *.swp
+
+# Generated data
+data/cards.json
+
+# Test output
+test-results/
+playwright-report/
