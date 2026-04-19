@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "tsx scripts/fetch-and-build-data.ts && astro build && pagefind --site dist",
+    "build:data": "tsx scripts/fetch-and-build-data.ts",
+    "build:site": "astro build && pagefind --site dist",
     "build:fixtures": "FIXTURES=1 tsx scripts/fetch-and-build-data.ts && astro build && pagefind --site dist",
     "build:fixtures-empty-prices": "echo '{\"generatedAt\":\"2026-01-01T00:00:00.000Z\",\"records\":{}}' > data/prices-fresh.json && npm run build:fixtures",
     "fetch-prices-fresh": "tsx scripts/fetch-prices-fresh.ts",

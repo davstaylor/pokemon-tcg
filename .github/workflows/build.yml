@@ -31,8 +31,25 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test:unit
-      - name: Build (live TCGdex fetch)
-        run: npm run build
+      - name: Fetch exchange rates
+        run: npm run fetch-exchange-rates
+      - name: Fetch TCGdex catalog + prices
+        run: npm run build:data
+        env:
+          PUBLIC_BUILD_TIMESTAMP: ${{ github.event.head_commit.timestamp || github.run_started_at }}
+      - name: Push today's history snapshot to D1
+        run: npm run push-history-to-d1
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Pull history snapshot from Worker
+        run: npm run pull-history-from-worker
+        continue-on-error: true
+        env:
+          WORKER_URL: ${{ secrets.WORKER_URL }}
+      - name: Build static site
+        run: npm run build:site
         env:
           PUBLIC_BUILD_TIMESTAMP: ${{ github.event.head_commit.timestamp || github.run_started_at }}
       - uses: actions/upload-pages-artifact@v3
