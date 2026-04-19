@@ -78,4 +78,33 @@ describe('normalise', () => {
     const result = normalise(enOnly);
     expect(result).toHaveLength(2);
   });
+
+  it('tolerates summary-only non-EN cards (no set field present)', () => {
+    // Simulates the shape the live fetch will produce: EN has full detail,
+    // non-EN has only /v2/{lang}/cards summaries (id, localId, name, image).
+    const mixed = {
+      en: fixture.en,   // full detail including set
+      fr: [{ id: 'base1-4', localId: '4', name: 'Dracaufeu', image: 'https://assets.tcgdex.net/fr/base/base1/4' }],
+    };
+    expect(() => normalise(mixed as never)).not.toThrow();
+    const result = normalise(mixed as never);
+    const charizard = result.find((c) => c.id === 'base1-4')!;
+    expect(charizard.prints.fr?.name).toBe('Dracaufeu');
+    expect(charizard.prints.fr?.setName).toBe('');
+    expect(charizard.prints.fr?.releaseDate).toBe('');
+  });
+
+  it('preserves EN-first filter derivation when non-EN is summary-only', () => {
+    // filters.setId, filters.series come from the first-encountered record for
+    // an identity. SUPPORTED_LANGUAGES puts EN first, so filters are always
+    // derived from the full EN record — even when later languages are summaries.
+    const mixed = {
+      en: fixture.en,
+      fr: [{ id: 'base1-4', localId: '4', name: 'Dracaufeu', image: 'x' }],
+    };
+    const result = normalise(mixed as never);
+    const charizard = result.find((c) => c.id === 'base1-4')!;
+    expect(charizard.filters.setId).toBe('base1');
+    expect(charizard.filters.series).toBe('base');
+  });
 });

@@ -6,7 +6,7 @@ type RawCard = {
   localId: string;
   name: string;
   image: string | null;
-  set: {
+  set?: {
     id: string;
     name: string;
     symbol: string | null;
@@ -31,8 +31,8 @@ function toImageURL(base: string | null): string {
 function toPrint(raw: RawCard): PrintData {
   return {
     name: raw.name,
-    setName: raw.set.name,
-    setSymbol: raw.set.symbol ? `${raw.set.symbol}.png` : '',
+    setName: raw.set?.name ?? '',
+    setSymbol: raw.set?.symbol ? `${raw.set.symbol}.png` : '',
     rarity: raw.rarity ?? 'Unknown',
     hp: raw.hp ?? null,
     types: raw.types ?? [],
@@ -44,7 +44,7 @@ function toPrint(raw: RawCard): PrintData {
     })),
     artist: raw.illustrator ?? 'Unknown',
     imageURL: toImageURL(raw.image),
-    releaseDate: raw.set.releaseDate,
+    releaseDate: raw.set?.releaseDate ?? '',
     flavorText: raw.description,
   };
 }
@@ -75,10 +75,10 @@ export function normalise(dumps: RawDumps): CardIdentity[] {
         byId.set(raw.id, {
           prints: { [lang]: print },
           filters: {
-            setId: raw.set.id,
+            setId: raw.set!.id,
             rarity: raw.rarity ?? 'Unknown',
             types: raw.types ?? [],
-            series: raw.set.serie.id,
+            series: raw.set!.serie.id,
           },
         });
       } else {
