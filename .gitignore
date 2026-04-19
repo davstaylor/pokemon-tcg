@@ -23,6 +23,7 @@ dist/
 
 # Generated data
 data/cards.json
+data/prices-baseline.json
 
 # Test output
 test-results/
