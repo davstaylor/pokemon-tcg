@@ -5,7 +5,7 @@ compatibility_date = "2025-01-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "pokemon-tcg-history"
-database_id = "REPLACE_AFTER_d1_create"
+database_id = "56bcb6cd-cfc3-4c63-901c-7237891cbf87"
 
 [observability]
 enabled = true
