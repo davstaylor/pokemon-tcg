@@ -6,36 +6,79 @@ import PrintGallery from '@/components/PrintGallery.astro';
 import PriceTile from '@/components/PriceTile.astro';
 import type { CardIdentity } from '@/data/schema';
 import type { PriceFile, CardPriceRecord } from '@/data/price-schema';
+import type { SparklineDump, RangeDump, Snapshot, Range } from '@/data/history-schema';
+import type { SupportedCurrency, ExchangeRates } from '@/data/currency-schema';
 import { mergePrices } from '@/data/price-merge';
+import { ExchangeRatesSchema } from '@/data/currency-schema';
+import { SparklineDumpSchema, RangeDumpSchema } from '@/data/history-schema';
+
+const DEFAULT_CURRENCY: SupportedCurrency = 'EUR';
 
 export async function getStaticPaths() {
   const cards: CardIdentity[] = JSON.parse(
     readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
   );
 
-  // Load both price files; either may be absent for a fresh checkout.
   const baselinePath = resolve(process.cwd(), 'data/prices-baseline.json');
   const freshPath = resolve(process.cwd(), 'data/prices-fresh.json');
-  const empty: PriceFile = { generatedAt: new Date(0).toISOString(), records: {} };
-  const baseline: PriceFile = existsSync(baselinePath) ? JSON.parse(readFileSync(baselinePath, 'utf8')) : empty;
-  const fresh: PriceFile = existsSync(freshPath) ? JSON.parse(readFileSync(freshPath, 'utf8')) : empty;
+  const sparkPath = resolve(process.cwd(), 'data/sparkline-snapshot.json');
+  const rangePath = resolve(process.cwd(), 'data/range-snapshot.json');
+  const ratesPath = resolve(process.cwd(), 'data/exchange-rates.json');
+
+  const emptyPriceFile: PriceFile = { generatedAt: new Date(0).toISOString(), records: {} };
+  const emptySparkline: SparklineDump = { days: 30, cutoff: '1970-01-01', records: {} };
+  const emptyRange: RangeDump = { days: 90, cutoff: '1970-01-01', records: {} };
+  const fallbackRates: ExchangeRates = {
+    base: 'EUR',
+    date: '1970-01-01',
+    rates: { USD: 1, GBP: 1, JPY: 1 },
+  };
+
+  const baseline: PriceFile = existsSync(baselinePath) ? JSON.parse(readFileSync(baselinePath, 'utf8')) : emptyPriceFile;
+  const fresh: PriceFile = existsSync(freshPath) ? JSON.parse(readFileSync(freshPath, 'utf8')) : emptyPriceFile;
+  const spark: SparklineDump = existsSync(sparkPath) ? SparklineDumpSchema.parse(JSON.parse(readFileSync(sparkPath, 'utf8'))) : emptySparkline;
+  const range: RangeDump = existsSync(rangePath) ? RangeDumpSchema.parse(JSON.parse(readFileSync(rangePath, 'utf8'))) : emptyRange;
+  const rates: ExchangeRates = existsSync(ratesPath) ? ExchangeRatesSchema.parse(JSON.parse(readFileSync(ratesPath, 'utf8'))) : fallbackRates;
+
   const merged = mergePrices(baseline, fresh);
 
-  return cards.map((card) => ({
-    params: { id: card.id },
-    props: { card, priceRecord: merged[card.id] ?? null },
-  }));
+  return cards.map((card) => {
+    const history: Snapshot[] = spark.records[card.id] ?? [];
+    const rangeForCard: Range | null = range.records[card.id] ?? null;
+    return {
+      params: { id: card.id },
+      props: {
+        card,
+        priceRecord: merged[card.id] ?? null,
+        history,
+        rangeForCard,
+        rates,
+      },
+    };
+  });
 }
 
-interface Props { card: CardIdentity; priceRecord: CardPriceRecord | null }
-const { card, priceRecord } = Astro.props;
+interface Props {
+  card: CardIdentity;
+  priceRecord: CardPriceRecord | null;
+  history: Snapshot[];
+  rangeForCard: Range | null;
+  rates: ExchangeRates;
+}
+const { card, priceRecord, history, rangeForCard, rates } = Astro.props;
 ---
 <Base title={`${card.defaultName} — Pokémon TCG Catalog`}>
   <article data-pagefind-body data-pagefind-meta={`title:${card.defaultName}`}>
     <h1>{card.defaultName}</h1>
     <PrintGallery card={card} />
     {priceRecord !== null && priceRecord.sources.cardmarket && (
-      <PriceTile record={priceRecord} />
+      <PriceTile
+        record={priceRecord}
+        history={history}
+        range={rangeForCard}
+        currency={DEFAULT_CURRENCY}
+        rates={rates}
+      />
     )}
     <div style="position:absolute;left:-9999px" aria-hidden="true">
       {card.searchTokens.join(' ')}
