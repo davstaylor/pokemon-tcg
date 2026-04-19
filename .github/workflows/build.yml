@@ -28,8 +28,14 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test:unit
-      - name: Build (live TCGdex fetch)
-        run: npm run build
+      # TEMPORARY: fixture build. The live-fetch pipeline (`npm run build`)
+      # needs a strategy for TCGdex's ~30k-request cost — see the "Live-data
+      # pipeline" design task. Until that lands, CI deploys from the checked-in
+      # fixture (data/fixtures/sample-cards.json), which produces a small but
+      # correct site. Switch `build:fixtures` back to `build` once the live-fetch
+      # strategy is in place.
+      - name: Build (fixture — live-fetch strategy pending)
+        run: npm run build:fixtures
         env:
           PUBLIC_BUILD_TIMESTAMP: ${{ github.event.head_commit.timestamp || github.run_started_at }}
       - uses: actions/upload-pages-artifact@v3
