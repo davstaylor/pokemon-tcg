@@ -1,24 +1,42 @@
 ---
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import Base from '@/layouts/Base.astro';
 import PrintGallery from '@/components/PrintGallery.astro';
+import PriceTile from '@/components/PriceTile.astro';
 import type { CardIdentity } from '@/data/schema';
+import type { PriceFile, CardPriceRecord } from '@/data/price-schema';
+import { mergePrices } from '@/data/price-merge';
 
 export async function getStaticPaths() {
   const cards: CardIdentity[] = JSON.parse(
     readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
   );
-  return cards.map((card) => ({ params: { id: card.id }, props: { card } }));
+
+  // Load both price files; either may be absent for a fresh checkout.
+  const baselinePath = resolve(process.cwd(), 'data/prices-baseline.json');
+  const freshPath = resolve(process.cwd(), 'data/prices-fresh.json');
+  const empty: PriceFile = { generatedAt: new Date(0).toISOString(), records: {} };
+  const baseline: PriceFile = existsSync(baselinePath) ? JSON.parse(readFileSync(baselinePath, 'utf8')) : empty;
+  const fresh: PriceFile = existsSync(freshPath) ? JSON.parse(readFileSync(freshPath, 'utf8')) : empty;
+  const merged = mergePrices(baseline, fresh);
+
+  return cards.map((card) => ({
+    params: { id: card.id },
+    props: { card, priceRecord: merged[card.id] ?? null },
+  }));
 }
 
-interface Props { card: CardIdentity }
-const { card } = Astro.props;
+interface Props { card: CardIdentity; priceRecord: CardPriceRecord | null }
+const { card, priceRecord } = Astro.props;
 ---
 <Base title={`${card.defaultName} — Pokémon TCG Catalog`}>
   <article data-pagefind-body data-pagefind-meta={`title:${card.defaultName}`}>
     <h1>{card.defaultName}</h1>
     <PrintGallery card={card} />
+    {priceRecord !== null && priceRecord.sources.cardmarket && (
+      <PriceTile record={priceRecord} />
+    )}
     <div style="position:absolute;left:-9999px" aria-hidden="true">
       {card.searchTokens.join(' ')}
     </div>

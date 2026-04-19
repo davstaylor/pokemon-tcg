@@ -7,7 +7,7 @@ export default defineConfig({
     baseURL: 'http://localhost:4321/pokemon-tcg/',
   },
   webServer: {
-    command: 'npm run build:fixtures && npm run preview',
+    command: 'npm run build:fixtures-empty-prices && npm run preview',
     url: 'http://localhost:4321/pokemon-tcg/',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
