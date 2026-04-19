@@ -10,6 +10,8 @@
     "build:fixtures-empty-prices": "echo '{\"generatedAt\":\"2026-01-01T00:00:00.000Z\",\"records\":{}}' > data/prices-fresh.json && npm run build:fixtures",
     "fetch-prices-fresh": "tsx scripts/fetch-prices-fresh.ts",
     "fetch-exchange-rates": "tsx scripts/fetch-exchange-rates.ts",
+    "push-history-to-d1": "tsx scripts/push-history-to-d1.ts",
+    "bootstrap-d1-history": "tsx scripts/bootstrap-d1-history.ts",
     "preview": "astro preview",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
