@@ -6,6 +6,8 @@ on:
   workflow_dispatch: {}         # manual trigger for "new set just dropped"
   push:
     branches: [main]
+    paths-ignore:
+      - 'data/prices-fresh.json'
 
 permissions:
   contents: read

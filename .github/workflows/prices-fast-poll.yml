@@ -1,0 +1,66 @@
+name: prices-fast-poll
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'     # every 5 minutes
+  workflow_dispatch: {}
+
+permissions:
+  contents: write             # needs to commit data/prices-fresh.json
+  pages: write
+  id-token: write
+
+concurrency:
+  group: price-update
+  cancel-in-progress: false   # let runs queue, don't drop updates
+
+jobs:
+  poll-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Fetch fresh prices
+        run: npm run fetch-prices-fresh
+
+      - name: Commit prices-fresh.json if changed
+        run: |
+          if git diff --quiet data/prices-fresh.json; then
+            echo "No price changes — skipping commit and deploy."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/prices-fresh.json
+            git commit -m "chore(prices): update fresh prices"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+        id: commit
+
+      - name: Build (fixture-mode pipeline, picks up fresh prices via merge)
+        if: steps.commit.outputs.changed == 'true'
+        run: npm run build:fixtures
+        env:
+          PUBLIC_BUILD_TIMESTAMP: ${{ github.run_started_at }}
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.commit.outputs.changed == 'true'
+        with: { path: dist }
+
+  deploy:
+    needs: poll-and-deploy
+    if: needs.poll-and-deploy.result == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
