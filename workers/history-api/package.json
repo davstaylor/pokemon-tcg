@@ -1,0 +1,15 @@
+{
+  "name": "pokemon-tcg-history-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "migrate": "wrangler d1 migrations apply pokemon-tcg-history --remote"
+  },
+  "devDependencies": {
+    "wrangler": "^3.90.0",
+    "typescript": "^5.9.3",
+    "@cloudflare/workers-types": "^4.20250101.0"
+  }
+}

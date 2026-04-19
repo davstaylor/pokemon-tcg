@@ -1,0 +1,11 @@
+name = "pokemon-tcg-history-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pokemon-tcg-history"
+database_id = "REPLACE_AFTER_d1_create"
+
+[observability]
+enabled = true
