@@ -17,13 +17,7 @@ const q = new URL(Astro.request.url).searchParams.get('q') ?? '';
   <SearchBox client:load initialQuery={q} />
 
   <div style="display:grid;grid-template-columns:220px 1fr;gap:2rem;margin-top:2rem;">
-    <FacetSidebar client:load cards={cards} onFilter={(filtered) => {
-      document.querySelectorAll('[data-card-tile]').forEach((el) => {
-        const id = el.getAttribute('data-card-id');
-        (el as HTMLElement).style.display = filtered.some((c: CardIdentity) => c.id === id) ? '' : 'none';
-      });
-      document.querySelector('[data-result-count]')!.textContent = String(filtered.length);
-    }} />
+    <FacetSidebar client:load cards={cards} />
     <div>
       <p><span data-result-count>{cards.length}</span> cards</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.5rem;">

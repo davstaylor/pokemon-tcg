@@ -3,7 +3,17 @@ import type { CardIdentity } from '@/data/schema';
 
 type Filters = { set?: string; type?: string; rarity?: string; series?: string };
 
-export default function FacetSidebar({ cards, onFilter }: { cards: CardIdentity[]; onFilter: (cards: CardIdentity[]) => void }) {
+function applyFilter(filtered: CardIdentity[]) {
+  const allowed = new Set(filtered.map((c) => c.id));
+  document.querySelectorAll<HTMLElement>('[data-card-tile]').forEach((el) => {
+    const id = el.getAttribute('data-card-id');
+    el.style.display = id && allowed.has(id) ? '' : 'none';
+  });
+  const counter = document.querySelector('[data-result-count]');
+  if (counter) counter.textContent = String(filtered.length);
+}
+
+export default function FacetSidebar({ cards }: { cards: CardIdentity[] }) {
   const [filters, setFilters] = useState<Filters>({});
 
   const sets = Array.from(new Set(cards.map((c) => c.filters.setId))).sort();
@@ -19,8 +29,8 @@ export default function FacetSidebar({ cards, onFilter }: { cards: CardIdentity[
       if (filters.series && c.filters.series !== filters.series) return false;
       return true;
     });
-    onFilter(filtered);
-  }, [filters]);
+    applyFilter(filtered);
+  }, [filters, cards]);
 
   function renderFacet(label: string, key: keyof Filters, values: string[]) {
     return (
@@ -33,6 +43,7 @@ export default function FacetSidebar({ cards, onFilter }: { cards: CardIdentity[
                 <input
                   type="radio"
                   name={key}
+                  value={v}
                   checked={filters[key] === v}
                   onChange={() => setFilters({ ...filters, [key]: v })}
                 />

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 
 type PagefindResult = {
   id: string;
@@ -16,25 +16,40 @@ declare global { interface Window { pagefind?: Pagefind } }
 export default function SearchBox({ initialQuery = '' }: { initialQuery?: string }) {
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<PagefindResult[]>([]);
-  const pagefindRef = useRef<Pagefind | null>(null);
+  const [pagefind, setPagefind] = useState<Pagefind | null>(null);
 
+  // Load Pagefind once on mount.
   useEffect(() => {
     (async () => {
       if (!window.pagefind) {
         const pagefindUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/pagefind/pagefind.js`;
-        window.pagefind = await import(/* @vite-ignore */ pagefindUrl) as unknown as Pagefind;
+        window.pagefind = (await import(/* @vite-ignore */ pagefindUrl)) as unknown as Pagefind;
       }
-      pagefindRef.current = window.pagefind;
-      if (initialQuery) handleSearch(initialQuery);
+      setPagefind(window.pagefind);
     })();
   }, []);
 
-  async function handleSearch(q: string) {
-    if (!pagefindRef.current || q.length < 2) { setResults([]); return; }
-    const raw = await pagefindRef.current.search(q);
-    const data = await Promise.all(raw.results.slice(0, 20).map((r) => r.data()));
-    setResults(data);
-  }
+  // Re-run search whenever the query changes OR pagefind finishes loading.
+  // The second condition matters: if the user types before Pagefind is ready,
+  // the query is captured in state and runs as soon as Pagefind loads.
+  useEffect(() => {
+    if (!pagefind) return;
+    if (query.length < 2) {
+      setResults([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const raw = await pagefind.search(query);
+      if (cancelled) return;
+      const data = await Promise.all(raw.results.slice(0, 20).map((r) => r.data()));
+      if (cancelled) return;
+      setResults(data);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [query, pagefind]);
 
   return (
     <div>
@@ -42,11 +57,7 @@ export default function SearchBox({ initialQuery = '' }: { initialQuery?: string
         type="search"
         value={query}
         placeholder="Search any card name…"
-        onInput={(e) => {
-          const v = (e.target as HTMLInputElement).value;
-          setQuery(v);
-          handleSearch(v);
-        }}
+        onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
         style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: 999, border: '1px solid #d9c9a3', background: '#fffdf6' }}
       />
       <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
