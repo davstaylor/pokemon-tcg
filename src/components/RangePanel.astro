@@ -1,0 +1,175 @@
+---
+import type { Range } from '@/data/history-schema';
+import type { SupportedCurrency, ExchangeRates } from '@/data/currency-schema';
+import { convertFromEUR, formatCurrency } from '@/data/currency';
+
+interface Props {
+  range: Range | null;
+  currency: SupportedCurrency;
+  rates: ExchangeRates;
+  cardMarketUnit: 'EUR' | 'USD';  // stays EUR for v2.1; ready for v2.2 multi-unit data
+}
+
+const { range, currency, rates } = Astro.props;
+
+const lowEUR = range?.low ?? null;
+const highEUR = range?.high ?? null;
+const latestEUR = range?.latest ?? null;
+
+const lowInCurrency = convertFromEUR(lowEUR, currency, rates);
+const highInCurrency = convertFromEUR(highEUR, currency, rates);
+const latestInCurrency = convertFromEUR(latestEUR, currency, rates);
+
+const rangeValueEUR =
+  lowEUR !== null && highEUR !== null ? highEUR - lowEUR : null;
+const rangeValueInCurrency = convertFromEUR(rangeValueEUR, currency, rates);
+const percentFromLow =
+  lowInCurrency !== null && lowInCurrency > 0 && latestInCurrency !== null
+    ? Math.round(((latestInCurrency - lowInCurrency) / lowInCurrency) * 100)
+    : null;
+
+// Percent position of "latest" along the low→high axis, for the range-bar marker.
+const markerPercent =
+  lowEUR !== null && highEUR !== null && latestEUR !== null && highEUR > lowEUR
+    ? Math.max(0, Math.min(100, Math.round(((latestEUR - lowEUR) / (highEUR - lowEUR)) * 100)))
+    : 50;
+
+const hasData = range !== null && range.low !== null && range.high !== null && range.latest !== null;
+---
+<div class="range-panel">
+  <div class="range-header">90-day range</div>
+
+  {!hasData ? (
+    <div class="range-empty">No history yet — fills in over the next 30 days.</div>
+  ) : (
+    <>
+      <div class="range-row">
+        <div>
+          <div class="range-label">LOW</div>
+          <div class="range-value" data-eur={lowEUR} data-price-currency-field>
+            {formatCurrency(lowInCurrency, currency)}
+          </div>
+        </div>
+        <div class="range-right">
+          <div class="range-label">HIGH</div>
+          <div class="range-value" data-eur={highEUR} data-price-currency-field>
+            {formatCurrency(highInCurrency, currency)}
+          </div>
+        </div>
+      </div>
+
+      <div class="range-bar-wrap">
+        <div class="range-bar-bg"></div>
+        <div class="range-bar-fg"></div>
+        <div class="range-marker" style={`left: ${markerPercent}%`}></div>
+        <div class="range-marker-label" style={`left: ${markerPercent}%`}>
+          now {formatCurrency(latestInCurrency, currency)}
+        </div>
+      </div>
+
+      <div class="range-stats">
+        <div>
+          <div class="range-label">range</div>
+          <div class="range-stat" data-eur={rangeValueEUR} data-price-currency-field>
+            {formatCurrency(rangeValueInCurrency, currency)}
+          </div>
+        </div>
+        <div class="range-right">
+          <div class="range-label">% from low</div>
+          <div class="range-stat range-positive">
+            {percentFromLow !== null ? `${percentFromLow > 0 ? '+' : ''}${percentFromLow}%` : '—'}
+          </div>
+        </div>
+      </div>
+
+      <div class="range-footer">History from Cloudflare D1 · seeded with Cardmarket 30d/7d/1d on day 1</div>
+    </>
+  )}
+</div>
+
+<style>
+  .range-panel {
+    background: linear-gradient(180deg, #fffdf6, #f5efe2);
+    border: 1px solid #d9c9a3;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'Helvetica Neue', system-ui, sans-serif;
+    color: #3b2a1a;
+    min-height: 180px;
+  }
+  .range-header {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #7a5e3a;
+  }
+  .range-empty {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #7a5e3a;
+  }
+  .range-row, .range-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  .range-right { text-align: right; }
+  .range-label {
+    font-size: 10px;
+    color: #7a5e3a;
+    letter-spacing: 1px;
+  }
+  .range-value {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .range-stat {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .range-positive { color: #2d7d47; }
+
+  .range-bar-wrap {
+    position: relative;
+    height: 32px;
+    margin-top: 14px;
+  }
+  .range-bar-bg {
+    position: absolute;
+    top: 13px; left: 0; right: 0;
+    height: 4px;
+    background: #e8ddc6;
+    border-radius: 2px;
+  }
+  .range-bar-fg {
+    position: absolute;
+    top: 13px; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ffb347, #c86f3d);
+    border-radius: 2px;
+  }
+  .range-marker {
+    position: absolute;
+    top: 6px;
+    width: 2px; height: 18px;
+    background: #3b2a1a;
+    transform: translateX(-50%);
+  }
+  .range-marker-label {
+    position: absolute;
+    top: 0;
+    font-size: 9px;
+    color: #3b2a1a;
+    font-weight: 600;
+    white-space: nowrap;
+    transform: translateX(-50%);
+  }
+
+  .range-footer {
+    margin-top: 14px;
+    padding-top: 8px;
+    border-top: 1px solid #e8ddc6;
+    font-size: 10px;
+    color: #7a5e3a;
+  }
+</style>

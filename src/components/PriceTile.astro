@@ -1,87 +1,100 @@
 ---
 import PriceChart from '@/components/PriceChart';
+import RangePanel from '@/components/RangePanel.astro';
 import type { CardPriceRecord } from '@/data/price-schema';
+import type { Snapshot, Range } from '@/data/history-schema';
+import type { SupportedCurrency, ExchangeRates } from '@/data/currency-schema';
 import { trendVsAvg30 } from '@/data/price-delta';
 import { freshnessBadge } from '@/data/price-freshness';
+import { computeVolatility } from '@/data/volatility';
+import { convertFromEUR, formatCurrency } from '@/data/currency';
 
-interface Props { record: CardPriceRecord }
-const { record } = Astro.props;
+interface Props {
+  record: CardPriceRecord;
+  history: Snapshot[];
+  range: Range | null;
+  currency: SupportedCurrency;
+  rates: ExchangeRates;
+}
+const { record, history, range, currency, rates } = Astro.props;
 const cm = record.sources.cardmarket;
-
-// Type narrowing — PriceTile is only rendered when cm exists, but double-check.
 if (!cm) throw new Error('PriceTile rendered without cardmarket source');
 
 const delta = trendVsAvg30({ trend: cm.trend, avg30: cm.avg30 });
 const badge = freshnessBadge({ updatedAt: cm.updatedAt });
 
-const CURRENCY_GLYPH: Record<string, string> = { EUR: '€', USD: '$' };
-const glyph = CURRENCY_GLYPH[cm.unit] ?? cm.unit;
+// Build sparkline points from history (oldest first).
+const chartPoints = history
+  .filter((h) => h.trend !== null)
+  .sort((a, b) => a.date.localeCompare(b.date))
+  .map((h) => ({ label: h.date, value: h.trend as number }));
 
-// Build the 4-point chart: 30d avg → 7d avg → 1d avg → current trend.
-// Skip points where the value is null (graceful degradation).
-const chartPoints = [
-  { label: '30d avg', value: cm.avg30 },
-  { label: '7d avg', value: cm.avg7 },
-  { label: '1d avg', value: cm.avg1 },
-  { label: 'now', value: cm.trend },
-].filter((p): p is { label: string; value: number } => p.value !== null);
+// Fallback to the 4-point synthetic line if history is empty.
+if (chartPoints.length === 0) {
+  if (cm.avg30 !== null) chartPoints.push({ label: '30d avg', value: cm.avg30 });
+  if (cm.avg7 !== null)  chartPoints.push({ label: '7d avg',  value: cm.avg7 });
+  if (cm.avg1 !== null)  chartPoints.push({ label: '1d avg',  value: cm.avg1 });
+  if (cm.trend !== null) chartPoints.push({ label: 'now',     value: cm.trend });
+}
 
-const trendDisplay =
-  cm.trend !== null
-    ? `${glyph}${Math.floor(cm.trend)}.${Math.round((cm.trend - Math.floor(cm.trend)) * 100).toString().padStart(2, '0')}`
-    : '— —';
+const trendSeries = chartPoints.map((p) => p.value);
+const { bucket: volBucket, coefficient: volCoef } = computeVolatility(trendSeries);
+
+// Convert all displayed numbers at build time.
+const trendInCurrency = convertFromEUR(cm.trend, currency, rates);
+const chartPointsInCurrency = chartPoints.map((p) => ({
+  label: p.label,
+  value: convertFromEUR(p.value, currency, rates) ?? 0,
+}));
+const deltaAbsInCurrency = delta ? convertFromEUR(Math.abs(delta.absolute), currency, rates) : null;
 ---
 <section class="price-tile" data-price-tile={record.cardId}>
   <div class="live-card" data-price-source="cardmarket">
     <header>
       <span class="src-label">Cardmarket</span>
-      <span class={`badge badge-${badge.kind}`}>{badge.kind === 'live' ? '● LIVE' : badge.label}</span>
+      <div class="header-badges">
+        {volBucket !== 'unknown' && (
+          <span class={`badge volatility-pill volatility-${volBucket}`} data-volatility={volBucket}>
+            {volBucket.toUpperCase()}
+          </span>
+        )}
+        <span class={`badge badge-${badge.kind}`}>{badge.kind === 'live' ? '● LIVE' : badge.label}</span>
+      </div>
     </header>
 
     <div class="price-headline">
-      <div class="price-number">{trendDisplay}</div>
+      <div class="price-number" data-eur={cm.trend} data-price-currency-field>
+        {formatCurrency(trendInCurrency, currency)}
+      </div>
       <div class="price-caption">trend price</div>
     </div>
 
     {chartPoints.length >= 2 && (
       <div class="price-chart-slot">
-        <PriceChart client:visible points={chartPoints} currency={cm.unit} />
+        <PriceChart client:visible points={chartPointsInCurrency} currency={currency} />
       </div>
     )}
-
-    <div class="chart-legend">
-      {cm.avg30 !== null && <span>30d avg {glyph}{Math.round(cm.avg30)}</span>}
-      {cm.avg7 !== null && <span>7d {glyph}{Math.round(cm.avg7)}</span>}
-      {cm.avg1 !== null && <span>1d {glyph}{Math.round(cm.avg1)}</span>}
-      {cm.trend !== null && <span class="legend-now">now {glyph}{Math.round(cm.trend)}</span>}
-    </div>
 
     {delta !== null && (
       <footer class="tile-footer">
         <div class="delta">
           <span class="delta-label">vs 30d avg</span>
           <span class={`delta-value delta-${delta.direction}`} data-delta-direction={delta.direction}>
-            {delta.direction === 'up' ? '▲' : delta.direction === 'down' ? '▼' : '◆'} {glyph}{Math.abs(Math.round(delta.absolute))} · {delta.percent > 0 ? '+' : ''}{delta.percent.toFixed(1)}%
+            {delta.direction === 'up' ? '▲' : delta.direction === 'down' ? '▼' : '◆'}
+            {' '}
+            <span data-eur={Math.abs(delta.absolute)} data-price-currency-field>{formatCurrency(deltaAbsInCurrency, currency)}</span>
+            {' · '}{delta.percent > 0 ? '+' : ''}{delta.percent.toFixed(1)}%
           </span>
         </div>
-        <div class="src-footer">updated {badge.kind === 'live' ? 'just now' : badge.label.replace('updated ', '')}<br/>TCGdex → Cardmarket</div>
+        <div class="src-footer">
+          {volCoef !== null ? `σ/μ ${(volCoef * 100).toFixed(1)}% · 30d` : ''}<br/>
+          updated {badge.kind === 'live' ? 'just now' : badge.label.replace('updated ', '')} · Cardmarket
+        </div>
       </footer>
     )}
   </div>
 
-  <div class="placeholder-card" aria-label="eBay integration reserved for v2.1">
-    <header>
-      <span class="src-label">eBay · completed sales</span>
-    </header>
-    <div class="price-headline">
-      <div class="price-number muted">— —</div>
-      <div class="price-caption">latest sale (USD)</div>
-    </div>
-    <div class="placeholder-body">awaiting v2.1 integration</div>
-    <footer class="tile-footer">
-      <div class="placeholder-note">Cross-source delta, regional arbitrage signals, and multi-source time-series plot here once live.</div>
-    </footer>
-  </div>
+  <RangePanel range={range} currency={currency} rates={rates} cardMarketUnit="EUR" />
 </section>
 
 <style>
@@ -95,21 +108,12 @@ const trendDisplay =
     .price-tile { grid-template-columns: 1fr; }
   }
 
-  .live-card, .placeholder-card {
-    border-radius: 12px;
-    padding: 14px 16px;
-    font-family: 'Helvetica Neue', system-ui, sans-serif;
-  }
   .live-card {
     background: linear-gradient(180deg, #fffdf6, #f5efe2);
     border: 1px solid #d9c9a3;
-  }
-  .placeholder-card {
-    background: repeating-linear-gradient(45deg, #fffdf6, #fffdf6 6px, #faf3e4 6px, #faf3e4 12px);
-    border: 1px dashed #d9c9a3;
-    color: #a89878;
-    display: flex;
-    flex-direction: column;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'Helvetica Neue', system-ui, sans-serif;
   }
 
   header {
@@ -117,6 +121,7 @@ const trendDisplay =
     justify-content: space-between;
     align-items: baseline;
   }
+  .header-badges { display: flex; gap: 6px; align-items: center; }
   .src-label {
     font-size: 10px;
     letter-spacing: 2px;
@@ -132,22 +137,16 @@ const trendDisplay =
   .badge-recent { color: #7a5e3a; }
   .badge-stale { color: #a84b1f; }
 
+  .volatility-pill { font-weight: 600; }
+  .volatility-stable   { color: #2d7d47; background: #e5f2e8; }
+  .volatility-moderate { color: #c86f3d; background: #fef2e5; }
+  .volatility-volatile { color: #a84b1f; background: #fde4d9; }
+
   .price-headline { margin-top: 4px; }
   .price-number { font-size: 28px; font-weight: 700; color: #3b2a1a; line-height: 1; }
-  .price-number.muted { color: #bfb09b; }
   .price-caption { font-size: 11px; color: #5a4a36; margin-top: 2px; }
 
   .price-chart-slot { margin-top: 10px; }
-
-  .chart-legend {
-    display: flex;
-    justify-content: space-between;
-    font-size: 9px;
-    color: #7a5e3a;
-    letter-spacing: 1px;
-    margin-top: 2px;
-  }
-  .legend-now { color: #c86f3d; font-weight: 600; }
 
   .tile-footer {
     border-top: 1px solid #e8ddc6;
@@ -157,8 +156,6 @@ const trendDisplay =
     justify-content: space-between;
     align-items: center;
   }
-  .placeholder-card .tile-footer { border-top-style: dashed; }
-
   .delta-label { display: block; font-size: 10px; color: #7a5e3a; }
   .delta-value { font-size: 14px; font-weight: 600; }
   .delta-up { color: #2d7d47; }
@@ -170,17 +167,4 @@ const trendDisplay =
     text-align: right;
     line-height: 1.4;
   }
-
-  .placeholder-body {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin: 10px 0;
-    color: #bfb09b;
-  }
-  .placeholder-note { font-size: 10px; line-height: 1.5; }
 </style>
