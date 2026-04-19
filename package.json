@@ -11,6 +11,7 @@
     "fetch-prices-fresh": "tsx scripts/fetch-prices-fresh.ts",
     "fetch-exchange-rates": "tsx scripts/fetch-exchange-rates.ts",
     "push-history-to-d1": "tsx scripts/push-history-to-d1.ts",
+    "pull-history-from-worker": "tsx scripts/pull-history-from-worker.ts",
     "bootstrap-d1-history": "tsx scripts/bootstrap-d1-history.ts",
     "preview": "astro preview",
     "test:unit": "vitest run",

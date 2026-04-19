@@ -24,6 +24,8 @@ dist/
 # Generated data
 data/cards.json
 data/prices-baseline.json
+data/sparkline-snapshot.json
+data/range-snapshot.json
 
 # Test output
 test-results/
