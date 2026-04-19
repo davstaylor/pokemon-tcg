@@ -28,3 +28,7 @@ data/prices-baseline.json
 # Test output
 test-results/
 playwright-report/
+
+# Worker local env
+workers/history-api/.env.local
+workers/history-api/.wrangler/
