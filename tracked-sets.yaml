@@ -1,0 +1,10 @@
+# Sets whose cards are polled every 5 minutes for fresh price data.
+# Every card in the catalog still has baseline prices from the nightly
+# build; adding a set here just means its cards show a LIVE badge and
+# refresh much more often.
+#
+# Grow this list over time. Eventually it holds every set ID TCGdex
+# publishes, at which point we've reached the "every card trackable"
+# end state from the design doc.
+tracked:
+  - base1   # Base Set (1999). Vintage scarcity and high volatility make the tile meaningful.
