@@ -8,11 +8,13 @@ const fixture = JSON.parse(
 );
 
 describe('normalise', () => {
-  it('merges the four language dumps into one identity per card', () => {
+  it('merges all populated language dumps into one identity per card', () => {
     const result = normalise(fixture);
     expect(result).toHaveLength(2);
     const charizard = result.find((c) => c.id === 'base1-4')!;
-    expect(Object.keys(charizard.prints).sort()).toEqual(['en', 'ja', 'ko', 'zh']);
+    expect(new Set(Object.keys(charizard.prints))).toEqual(
+      new Set(['en', 'ja', 'fr', 'de', 'it', 'es', 'pt', 'zh-tw', 'zh-cn', 'th', 'id']),
+    );
   });
 
   it('includes cards that only exist in one language', () => {
@@ -22,11 +24,19 @@ describe('normalise', () => {
     expect(Object.keys(blastoise.prints)).toEqual(['en']);
   });
 
-  it('builds multilingual search tokens', () => {
+  it('builds multilingual search tokens across all 11 languages', () => {
     const result = normalise(fixture);
     const charizard = result.find((c) => c.id === 'base1-4')!;
     expect(charizard.searchTokens).toEqual(
-      expect.arrayContaining(['Charizard', 'リザードン', '리자몽', '喷火龙']),
+      expect.arrayContaining([
+        'Charizard',       // en, it, es, pt, id (same name in those langs)
+        'リザードン',        // ja
+        'Dracaufeu',        // fr
+        'Glurak',           // de
+        '噴火龍',            // zh-tw
+        '喷火龙',            // zh-cn
+        'ลิซาร์ดอน',         // th
+      ]),
     );
   });
 
@@ -36,14 +46,15 @@ describe('normalise', () => {
   });
 
   it('falls back to Japanese defaultName when no English print exists', () => {
-    const jpOnly = {
-      en: [],
-      ja: [fixture.ja[0]],
-      ko: [],
-      zh: [],
-    };
+    const jpOnly = { ja: [fixture.ja[0]] };
     const result = normalise(jpOnly);
     expect(result[0].defaultName).toBe('リザードン');
+  });
+
+  it('falls back to French (next in preference) when no EN or JA print exists', () => {
+    const frOnly = { fr: [fixture.fr[0]] };
+    const result = normalise(frOnly);
+    expect(result[0].defaultName).toBe('Dracaufeu');
   });
 
   it('produces output that passes schema validation', () => {
@@ -57,5 +68,14 @@ describe('normalise', () => {
     expect(charizard.prints.en!.imageURL).toBe(
       'https://assets.tcgdex.net/en/base/base1/4/high.webp',
     );
+  });
+
+  it('tolerates missing language keys in the input (Partial<RawDumps>)', () => {
+    // TCGdex returning zero cards for, e.g., Polish means we never get a 'pl'
+    // key in the raw dumps. normalise must not blow up on missing keys.
+    const enOnly = { en: fixture.en };
+    expect(() => normalise(enOnly)).not.toThrow();
+    const result = normalise(enOnly);
+    expect(result).toHaveLength(2);
   });
 });

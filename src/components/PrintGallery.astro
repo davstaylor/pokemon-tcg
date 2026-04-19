@@ -1,32 +1,159 @@
 ---
-import type { CardIdentity } from '@/data/schema';
+import type { CardIdentity, PrintData, Language } from '@/data/schema';
+
 interface Props { card: CardIdentity }
 const { card } = Astro.props;
-const printEntries = Object.entries(card.prints) as Array<[string, NonNullable<typeof card.prints.en>]>;
+
+const PRIMARY: Language[] = ['en', 'ja'];
+const EUROPEAN: Language[] = ['fr', 'de', 'it', 'es', 'pt'];
+const ASIAN: Language[] = ['zh-tw', 'zh-cn', 'th', 'id'];
+
+const LANG_DISPLAY: Record<Language, string> = {
+  en: 'EN', ja: 'JA', fr: 'FR', de: 'DE', it: 'IT', es: 'ES', pt: 'PT',
+  'zh-tw': 'ZH-TW', 'zh-cn': 'ZH-CN', th: 'TH', id: 'ID',
+};
+
+type PrintEntry = [Language, PrintData];
+function available(languages: Language[]): PrintEntry[] {
+  return languages.flatMap((l) => {
+    const p = card.prints[l];
+    return p ? [[l, p] as PrintEntry] : [];
+  });
+}
+
+const primary = available(PRIMARY);
+const european = available(EUROPEAN);
+const asian = available(ASIAN);
+const otherCount = european.length + asian.length;
 ---
 <section class="print-gallery" data-card-id={card.id}>
-  {printEntries.map(([lang, print]) => (
-    <figure class="print">
-      <span class="lang-label">{lang.toUpperCase()}</span>
-      {print.imageURL ? (
-        <img src={print.imageURL} alt={print.name} loading="lazy" />
-      ) : (
-        <div class="image-placeholder">{card.id}</div>
+  {primary.length > 0 && (
+    <div class="primary-row" data-print-row="primary">
+      {primary.map(([lang, print]) => (
+        <figure class="print primary-print" data-lang={lang}>
+          <span class="lang-label">{LANG_DISPLAY[lang]}</span>
+          {print.imageURL ? (
+            <img src={print.imageURL} alt={print.name} loading="lazy" />
+          ) : (
+            <div class="image-placeholder">{card.id}</div>
+          )}
+          <figcaption>{print.name}</figcaption>
+        </figure>
+      ))}
+    </div>
+  )}
+
+  {otherCount > 0 && (
+    <details class="other-languages">
+      <summary data-other-toggle>Show {otherCount} other language{otherCount === 1 ? '' : 's'}</summary>
+      {european.length > 0 && (
+        <div class="region-block" data-print-row="european">
+          <h3 class="region-label">European</h3>
+          <div class="region-row">
+            {european.map(([lang, print]) => (
+              <figure class="print secondary-print" data-lang={lang}>
+                <span class="lang-label">{LANG_DISPLAY[lang]}</span>
+                {print.imageURL ? (
+                  <img src={print.imageURL} alt={print.name} loading="lazy" />
+                ) : (
+                  <div class="image-placeholder">{card.id}</div>
+                )}
+                <figcaption>{print.name}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
       )}
-      <figcaption>{print.name}</figcaption>
-    </figure>
-  ))}
+      {asian.length > 0 && (
+        <div class="region-block" data-print-row="asian">
+          <h3 class="region-label">Asian</h3>
+          <div class="region-row">
+            {asian.map(([lang, print]) => (
+              <figure class="print secondary-print" data-lang={lang}>
+                <span class="lang-label">{LANG_DISPLAY[lang]}</span>
+                {print.imageURL ? (
+                  <img src={print.imageURL} alt={print.name} loading="lazy" />
+                ) : (
+                  <div class="image-placeholder">{card.id}</div>
+                )}
+                <figcaption>{print.name}</figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      )}
+    </details>
+  )}
 </section>
 
 <style>
-  .print-gallery {
+  .print-gallery { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .primary-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  .primary-print img { width: 100%; border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,0.16); }
+  .primary-print figcaption { font-size: 1.05rem; font-weight: 700; margin-top: 0.6rem; }
+
+  .other-languages {
+    border-top: 1px dashed #d9c9a3;
+    padding-top: 1rem;
+  }
+  .other-languages summary {
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #7a5e3a;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.25rem 0;
+  }
+  .other-languages summary:hover { color: #c86f3d; }
+
+  .region-block { margin-top: 1.25rem; }
+  .region-label {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #7a5e3a;
+    margin: 0 0 0.5rem 0;
+  }
+  .region-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 1rem;
   }
+  .secondary-print img { width: 100%; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .secondary-print figcaption { font-size: 0.85rem; font-weight: 600; margin-top: 0.4rem; }
+
   .print { margin: 0; text-align: center; }
-  .print img { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
-  .lang-label { font-size: 0.75rem; letter-spacing: 2px; color: #7a5e3a; }
-  .image-placeholder { aspect-ratio: 2/3; background: #eee; display: grid; place-items: center; border-radius: 10px; }
-  figcaption { margin-top: 0.5rem; font-weight: 600; }
+  .lang-label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: #7a5e3a;
+    margin-bottom: 0.35rem;
+  }
+  .image-placeholder {
+    aspect-ratio: 2/3;
+    background: #eee;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    color: #7a5e3a;
+    font-weight: 600;
+  }
+  figcaption { margin-top: 0.5rem; }
+
+  @media (max-width: 640px) {
+    .primary-row {
+      grid-template-columns: none;
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding: 1rem;
+    }
+    .primary-print { flex: 0 0 75%; scroll-snap-align: center; }
+  }
 </style>

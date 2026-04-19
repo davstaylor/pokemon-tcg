@@ -1,6 +1,17 @@
 import { z } from 'zod';
 
-export const SUPPORTED_LANGUAGES = ['en', 'ja', 'ko', 'zh'] as const;
+// The 11 languages TCGdex publishes populated data for, in the preference order
+// used for defaultName fallback and search-result ranking:
+//   EN + JA are the "primary pair" shown prominently on card pages;
+//   the European block (FR, DE, IT, ES, PT) and Asian block (ZH-TW, ZH-CN, TH, ID)
+//   fill the "Other languages" expander.
+// Korean, Polish, Russian, and Dutch are listed by TCGdex but empty at source —
+// add them here if/when TCGdex populates them; nothing else needs to change.
+export const SUPPORTED_LANGUAGES = [
+  'en', 'ja',
+  'fr', 'de', 'it', 'es', 'pt',
+  'zh-tw', 'zh-cn', 'th', 'id',
+] as const;
 export type Language = typeof SUPPORTED_LANGUAGES[number];
 
 export const AttackSchema = z.object({
@@ -30,8 +41,15 @@ export const PrintsSchema = z
   .object({
     en: PrintDataSchema.optional(),
     ja: PrintDataSchema.optional(),
-    ko: PrintDataSchema.optional(),
-    zh: PrintDataSchema.optional(),
+    fr: PrintDataSchema.optional(),
+    de: PrintDataSchema.optional(),
+    it: PrintDataSchema.optional(),
+    es: PrintDataSchema.optional(),
+    pt: PrintDataSchema.optional(),
+    'zh-tw': PrintDataSchema.optional(),
+    'zh-cn': PrintDataSchema.optional(),
+    th: PrintDataSchema.optional(),
+    id: PrintDataSchema.optional(),
   })
   .strict()
   .refine((prints) => Object.keys(prints).length > 0, {

@@ -21,7 +21,7 @@ type RawCard = {
   description: string | null;
 };
 
-export type RawDumps = Record<Language, RawCard[]>;
+export type RawDumps = Partial<Record<Language, RawCard[]>>;
 
 function toImageURL(base: string | null): string {
   if (!base) return '';
@@ -49,9 +49,12 @@ function toPrint(raw: RawCard): PrintData {
   };
 }
 
+// pickDefaultName preference: EN first, then JA (TCG source language),
+// then the European block, then the Asian block. If a card has no prints
+// in any of those, pickDefaultName throws — which is an invariant violation
+// because we also require at least one print in PrintsSchema.
 function pickDefaultName(prints: Partial<Record<Language, PrintData>>): string {
-  const preference: Language[] = ['en', 'ja', 'ko', 'zh'];
-  for (const lang of preference) {
+  for (const lang of SUPPORTED_LANGUAGES) {
     const p = prints[lang];
     if (p) return p.name;
   }

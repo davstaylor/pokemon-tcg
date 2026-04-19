@@ -12,13 +12,25 @@ test('searching in Japanese "リザードン" finds base1-4', async ({ page }) =
   await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
 });
 
-test('searching in Korean "리자몽" finds base1-4', async ({ page }) => {
+test('searching in French "Dracaufeu" finds base1-4', async ({ page }) => {
   await page.goto('search');
-  await page.fill('input[type=search]', '리자몽');
+  await page.fill('input[type=search]', 'Dracaufeu');
   await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
 });
 
-test('searching in Chinese "喷火龙" finds base1-4', async ({ page }) => {
+test('searching in German "Glurak" finds base1-4', async ({ page }) => {
+  await page.goto('search');
+  await page.fill('input[type=search]', 'Glurak');
+  await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
+});
+
+test('searching in Traditional Chinese "噴火龍" finds base1-4', async ({ page }) => {
+  await page.goto('search');
+  await page.fill('input[type=search]', '噴火龍');
+  await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
+});
+
+test('searching in Simplified Chinese "喷火龙" finds base1-4', async ({ page }) => {
   await page.goto('search');
   await page.fill('input[type=search]', '喷火龙');
   await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
