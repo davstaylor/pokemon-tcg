@@ -14,9 +14,9 @@ The eventual goal — a live market tracker — is deferred. v1 is the solid cat
 
 ### In scope (v1)
 
-- Multilingual card catalog covering English, Japanese, Korean, and Chinese prints, sourced from TCGdex
-- Search that resolves any card name in any of the four supported languages to a single card identity
-- Card detail pages showing every available regional print side-by-side
+- Multilingual card catalog covering every language TCGdex publishes data for. As of 2026-04-19 that is 11 populated languages: English, French, German, Italian, Spanish, Portuguese, Japanese, Chinese (Traditional), Chinese (Simplified), Thai, Indonesian. Four further languages are supported by TCGdex's API but currently empty (Korean, Polish, Russian, Dutch) — we do not fetch them for v1 but the schema is extensible when they populate.
+- Search resolves any card name in any of the supported languages to a single card identity.
+- Card detail pages show two prints prominently (the English print and the Japanese "source" print where each exists) with all other available regional prints revealed by an "Other languages" expander. Grouped inside the expander by region (European, Asian).
 - Faceted filters: Set, Type, Rarity, Series (TCGdex's term for the parent grouping above Set — e.g. Base, EX, Diamond & Pearl, ..., Scarlet & Violet)
 - Static site hosted on GitHub Pages
 - Data sourced at build time; nightly rebuilds
@@ -65,16 +65,17 @@ A single GitHub Actions workflow runs on each schedule or dispatch:
 
 One record per card **identity**, not per language. Missing languages are omitted rather than nulled.
 
+The 11 populated-language codes are the union type below. Adding a new language (e.g., if TCGdex populates Korean) is a one-line change to `SUPPORTED_LANGUAGES` and extension of the `Prints` object shape.
+
 ```ts
+type Language =
+  | 'en' | 'fr' | 'de' | 'it' | 'es' | 'pt'      // Western
+  | 'ja' | 'zh-tw' | 'zh-cn' | 'th' | 'id';      // Asian
+
 type CardIdentity = {
   id: string;                // e.g. "base1-4"
-  defaultName: string;       // EN name if present, else JP, else the first available
-  prints: {
-    en?: PrintData;
-    ja?: PrintData;
-    ko?: PrintData;
-    zh?: PrintData;
-  };
+  defaultName: string;       // EN name if present, else JA, else the first available
+  prints: Partial<Record<Language, PrintData>>;
   searchTokens: string[];    // names from all prints, for Pagefind tokenisation
   filters: {                 // denormalised for fast faceted filtering
     setId: string;
@@ -120,16 +121,22 @@ Responsive card grid. Sidebar with four facets: **Set**, **Type**, **Rarity**, *
 
 ### 6.3 Card detail
 
-The centerpiece feature. **All available regional prints displayed together.**
+The centerpiece feature. **Primary prints prominent, the rest revealed on demand.**
 
-- **Desktop:** grid of 2–4 prints side-by-side, depending on how many are available
-- **Mobile:** swipeable horizontal carousel with language labels
+- **Primary row** — the EN print and the JA ("source language") print, side-by-side. Either may be absent for region-exclusive cards; the row collapses gracefully to the prints that exist.
+- **Other languages expander** — a collapsed section labelled e.g. "Show 7 other languages". When expanded, prints are grouped into two labelled rows:
+  - **European** — FR, DE, IT, ES, PT (in that order)
+  - **Asian** — ZH-TW, ZH-CN, TH, ID (in that order)
+  - Within each row, only prints that actually exist for this card are rendered.
+- **Mobile** — primary row becomes a swipeable horizontal carousel. Expander behaves the same (tap to reveal grouped rows below).
 
-Metadata panel below the gallery: HP, types, attacks, artist, release date, flavor text. Each print's metadata is language-specific — we display the English print's English text and the Japanese print's Japanese text (with optional romanisation in a future iteration). A "Data source: TCGdex, last updated [ISO timestamp]" footnote sits at the bottom of the panel.
+Rationale: showing 11+ prints as a flat grid crowds the page and dilutes the comparison between the two most-searched-for regions (EN + JA). The expander keeps the page clean while preserving the "see every regional print" promise for collectors who want it.
+
+Metadata panel below the gallery: HP, types, attacks, artist, release date, flavor text. Metadata is language-specific; by default we display the EN print's text (falling back to the first available language if no EN print exists). A language-switcher above the metadata lets the user switch which print's text is shown without navigating away. A "Data source: TCGdex, last updated [ISO timestamp]" footnote sits at the bottom of the panel.
 
 ## 7. Multi-language strategy
 
-- **Search:** a single query matches against `searchTokens` from all four languages. Typing "Charizard", "リザードン", "리자몽", or "喷火龙" all resolve to the same card identity.
+- **Search:** a single query matches against `searchTokens` from every populated language. Typing "Charizard", "リザードン", "Dracaufeu", "Glurak", "Charizard" (ES/PT/IT), "喷火龙" etc. all resolve to the same card identity.
 - **URLs:** one canonical URL per identity (`/card/base1-4`), not per language. This gives clean SEO and avoids duplicate-content penalties.
 - **UI language:** English for v1. (Localising the UI itself is a future concern. We are *presenting* multilingual card data, not *translating* our interface.)
 - **Missing prints:** cards that only exist in, say, Japanese simply show only the Japanese print. No empty placeholders.
@@ -146,7 +153,9 @@ Metadata panel below the gallery: HP, types, attacks, artist, release date, flav
 | --------------------------------------- | -------------------------------------------------------------------- |
 | TCGdex API unreachable during build     | Fail build; keep previous deployment live; notify via GH Actions     |
 | TCGdex returns a schema shape we don't recognise | Zod validation fails; build fails; previous deployment stays   |
-| A language dump returns zero cards      | Treat as partial API outage; fail build                              |
+| EN language dump returns zero cards     | Fail build. EN is the largest dataset; empty EN = real outage.       |
+| A non-EN language dump returns zero cards | Log a warning and continue. Some populated TCGdex languages empty out occasionally, and aspirational-but-empty languages (KO, PL, RU, NL) aren't fetched by v1. A single empty language is a data-availability fact, not an outage. |
+| ALL language dumps return zero cards    | Fail build; certain-outage signal.                                   |
 | A card has some but not all prints      | Render only the prints that exist; no ghost tiles                    |
 | A print has no image                    | Placeholder: set symbol + collector number on neutral background     |
 | A print has no flavor text              | Hide the flavor-text row entirely (don't render "No flavor text")    |
@@ -184,8 +193,8 @@ The build step embeds the build timestamp into a static constant so each deploym
 
 | Level               | What's tested                                            | Tooling                            |
 | ------------------- | -------------------------------------------------------- | ---------------------------------- |
-| Build-time schema   | Each language dump returns non-empty data matching schema| Zod validators in the build script |
-| Multilingual search | Fixed query list — e.g. "Charizard", "リザードン" both resolve to `base1-4` | Vitest + Pagefind index probe      |
+| Build-time schema   | Each language dump matches schema; EN + "all-empty" paths fail loud | Zod validators in the build script |
+| Multilingual search | Fixed query list across all 11 languages — "Charizard", "リザードン", "Dracaufeu", "Glurak", "喷火龙", "Carapuce" etc. all resolve to the expected card identity | Vitest + Pagefind index probe      |
 | Layout regression   | Home, one search result, one card page                   | Playwright visual snapshots        |
 
 No unit tests for v1 UI components. YAGNI until interactive complexity grows beyond search + filter.
@@ -200,6 +209,8 @@ A short record of *why*, not *what*, for decisions that could be revisited:
 - **Hotlink images from TCGdex, don't self-host:** GitHub Pages' 1 GB soft limit is a hard ceiling for a multi-region image archive. TCGdex's terms permit hotlinking; we credit them.
 - **Nightly catalog rebuild:** card data is practically static. Rebuilding more often wastes CI minutes. Manual dispatch covers the "new set just dropped" case.
 - **Disabled fp-check plugin** in the user's Claude Code settings during this session because its Stop hook was noisy on non-security conversations. Unrelated to the product; recorded here only for session continuity.
+- **Language scope expanded from 4 to 11 (2026-04-19):** original brief named only EN/JA/KO/ZH, but TCGdex publishes populated data for EN, FR, DE, IT, ES, PT, JA, ZH-TW, ZH-CN, TH, ID. Narrowing to 4 was a premature scope cut. KO/PL/RU/NL remain empty at source, so v1 does not fetch them.
+- **Primary-pair + expander UX for card prints (2026-04-19):** with 11 possible prints, a flat grid would crowd the card page and dilute the EN-vs-JA comparison that most collectors want. Primary prints are EN and JA (the two most universal); the expander groups remainder by region (European / Asian) and renders only languages that exist for that card.
 
 ## 14. Open questions
 
