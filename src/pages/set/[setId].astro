@@ -26,7 +26,7 @@ const releasedClause = data.releaseDate ? `, released ${data.releaseDate}` : '';
 const seriesClause = data.seriesName ? ` ${data.seriesName} series.` : '';
 const description = `All ${data.cardCount} cards from ${data.setName || data.setId}${releasedClause}.${seriesClause}`;
 ---
-<Base title={title} description={description}>
+<Base title={title} description={description} ogImage={data.setSymbol || undefined}>
   <nav class="breadcrumb">
     <a href={`/pokemon-tcg/series/${data.seriesId}/`}>← {data.seriesName} series</a>
   </nav>

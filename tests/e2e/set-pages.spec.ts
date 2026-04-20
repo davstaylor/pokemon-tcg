@@ -43,3 +43,20 @@ test('sets index /sets/ lists every series as a tile', async ({ page }) => {
   await expect(tiles.first()).toContainText('Base');
   await expect(tiles.first()).toHaveAttribute('href', /\/pokemon-tcg\/series\/base\/$/);
 });
+
+test('set page emits Open Graph tags and a canonical link', async ({ page }) => {
+  await page.goto('set/base1/');
+  await expect(page.locator('head meta[property="og:title"]')).toHaveAttribute(
+    'content',
+    /Base/,
+  );
+  await expect(page.locator('head meta[property="og:type"]')).toHaveAttribute('content', 'website');
+  await expect(page.locator('head meta[property="og:url"]')).toHaveAttribute(
+    'content',
+    /\/pokemon-tcg\/set\/base1\/?$/,
+  );
+  await expect(page.locator('head link[rel="canonical"]')).toHaveAttribute(
+    'href',
+    /\/pokemon-tcg\/set\/base1\/?$/,
+  );
+});

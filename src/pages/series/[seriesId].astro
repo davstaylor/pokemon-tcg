@@ -24,7 +24,7 @@ const description = `${data.setCount} ${data.setCount === 1 ? 'set' : 'sets'} an
 
 const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
 ---
-<Base title={title} description={description}>
+<Base title={title} description={description} ogImage={data.sets[0]?.setSymbol || undefined}>
   <header class="series-header">
     <h1>{data.seriesName}</h1>
     <p class="meta">
