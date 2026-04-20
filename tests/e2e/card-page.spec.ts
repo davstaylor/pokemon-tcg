@@ -37,3 +37,10 @@ test('card with only one print shows just that print and no expander', async ({ 
   await expect(page.locator('.primary-print')).toHaveCount(1);
   await expect(page.locator('[data-other-toggle]')).toHaveCount(0);
 });
+
+test('card page set line links to /set/[setId]/', async ({ page }) => {
+  await page.goto('card/base1-4');
+  const setLink = page.locator('aside a[href*="/set/"]').first();
+  await expect(setLink).toHaveAttribute('href', /\/pokemon-tcg\/set\/base1\/$/);
+  await expect(setLink).toHaveText('Base'); // fixture set name
+});

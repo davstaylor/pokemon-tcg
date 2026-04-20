@@ -84,7 +84,7 @@ const { card, priceRecord, history, rangeForCard, rates } = Astro.props;
       {card.searchTokens.join(' ')}
     </div>
     <aside>
-      <p>Set: {card.filters.setName} <span style="color:#7a5e3a;font-size:0.8rem">({card.filters.setId})</span></p>
+      <p>Set: <a href={`/pokemon-tcg/set/${card.filters.setId}/`}>{card.filters.setName}</a> <span style="color:#7a5e3a;font-size:0.8rem">({card.filters.setId})</span></p>
       <p>Rarity: {card.filters.rarity}</p>
       <p>Types: {card.filters.types.join(', ') || '—'}</p>
     </aside>
