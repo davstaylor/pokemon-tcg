@@ -1,0 +1,68 @@
+---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '@/layouts/Base.astro';
+import type { CardIdentity } from '@/data/schema';
+import { groupSetsBySeries, type SeriesSummary } from '@/data/set-groups';
+
+export async function getStaticPaths() {
+  const cards: CardIdentity[] = JSON.parse(
+    readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
+  );
+  const bySeries = groupSetsBySeries(cards);
+  return Array.from(bySeries.entries()).map(([seriesId, data]) => ({
+    params: { seriesId },
+    props: { data },
+  }));
+}
+
+interface Props { data: SeriesSummary }
+const { data } = Astro.props;
+
+const title = `${data.seriesName} series — Pokémon TCG Catalog`;
+const description = `${data.setCount} ${data.setCount === 1 ? 'set' : 'sets'} and ${data.cardCount} cards in the ${data.seriesName} series of Pokémon TCG.`;
+
+const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
+---
+<Base title={title} description={description}>
+  <header class="series-header">
+    <h1>{data.seriesName}</h1>
+    <p class="meta">
+      {data.setCount} {data.setCount === 1 ? 'set' : 'sets'} · {data.cardCount} cards
+    </p>
+  </header>
+  <ul class="set-list">
+    {data.sets.map((s) => (
+      <li>
+        <a href={`/pokemon-tcg/set/${s.setId}/`} class="set-row">
+          {s.setSymbol && (
+            <img class="symbol" src={s.setSymbol} alt="" loading="lazy" onerror={ON_IMG_ERROR} />
+          )}
+          <div class="set-row-body">
+            <strong>{s.setName || s.setId}</strong>
+            <span class="meta">
+              {s.cardCount} cards{s.releaseDate ? ` · ${s.releaseDate}` : ''}
+            </span>
+          </div>
+        </a>
+      </li>
+    ))}
+  </ul>
+</Base>
+
+<style>
+  .series-header { margin-bottom: 2rem; }
+  .series-header h1 { margin-bottom: 0.25rem; }
+  .series-header .meta { color: var(--muted); margin: 0; }
+  .set-list { list-style: none; padding: 0; margin: 0; }
+  .set-list li { border-top: 1px solid #e8ddc6; }
+  .set-list li:last-child { border-bottom: 1px solid #e8ddc6; }
+  .set-row {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem 0.5rem; text-decoration: none; color: inherit;
+  }
+  .set-row:hover { background: var(--paper); }
+  .set-row .symbol { width: 40px; height: 40px; object-fit: contain; flex: 0 0 auto; }
+  .set-row strong { display: block; }
+  .set-row .meta { display: block; color: var(--muted); font-size: 0.85rem; }
+</style>

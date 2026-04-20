@@ -21,3 +21,15 @@ test('set page sorts cards by local id (base1-2 before base1-4)', async ({ page 
   await expect(tiles.first()).toHaveText('Blastoise');
   await expect(tiles.nth(1)).toHaveText('Charizard');
 });
+
+test('series page /series/base/ lists sets linking to /set/[setId]/', async ({ page }) => {
+  await page.goto('series/base/');
+  // Fixture series "base" has only set "base1" (name "Base").
+  await expect(page.locator('h1')).toHaveText('Base');
+  await expect(page.locator('.series-header .meta')).toContainText('1 set');
+  await expect(page.locator('.series-header .meta')).toContainText('2 cards');
+
+  const firstLink = page.locator('.set-list a').first();
+  await expect(firstLink).toHaveAttribute('href', /\/pokemon-tcg\/set\/base1\/$/);
+  await expect(firstLink).toContainText('Base');
+});
