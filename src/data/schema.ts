@@ -63,6 +63,7 @@ export const CardIdentitySchema = z.object({
   searchTokens: z.array(z.string()),
   filters: z.object({
     setId: z.string(),
+    setName: z.string(),
     rarity: z.string(),
     types: z.array(z.string()),
     series: z.string(),

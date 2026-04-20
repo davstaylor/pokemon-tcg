@@ -3,16 +3,19 @@ import type { CardIdentity } from '@/data/schema';
 interface Props { card: CardIdentity }
 const { card } = Astro.props;
 const preferredPrint = card.prints.en ?? card.prints.ja ?? card.prints.ko ?? card.prints.zh!;
+
+const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
 ---
 <a class="card-tile" href={`/pokemon-tcg/card/${card.id}`}>
-  {preferredPrint.imageURL ? (
-    <img src={preferredPrint.imageURL} alt={card.defaultName} loading="lazy" />
-  ) : (
+  <div class="image-wrap">
+    {preferredPrint.imageURL && (
+      <img src={preferredPrint.imageURL} alt={card.defaultName} loading="lazy" onerror={ON_IMG_ERROR} />
+    )}
     <div class="placeholder">{card.id}</div>
-  )}
+  </div>
   <div class="caption">
     <strong>{card.defaultName}</strong>
-    <span>{card.filters.setId} · {card.filters.rarity}</span>
+    <span>{card.filters.setName} · {card.filters.rarity}</span>
   </div>
 </a>
 
@@ -25,8 +28,23 @@ const preferredPrint = card.prints.en ?? card.prints.ja ?? card.prints.ko ?? car
     transition: transform 150ms ease;
   }
   .card-tile:hover { transform: translateY(-3px); }
-  .card-tile img { width: 100%; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
-  .placeholder { aspect-ratio: 2/3; background: #eee; display: grid; place-items: center; border-radius: 10px; }
+  .card-tile img { width: 100%; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); display: block; }
+
+  /* On image load error, <img> removes itself; placeholder becomes :only-child
+     and reveals via CSS. */
+  .image-wrap { position: relative; }
+  .placeholder {
+    aspect-ratio: 2/3;
+    background: #eee;
+    display: none;
+    place-items: center;
+    border-radius: 10px;
+    color: #7a5e3a;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
+  .placeholder:only-child { display: grid; }
+
   .caption { margin-top: 0.5rem; font-size: 0.9rem; }
   .caption span { display: block; color: #7a5e3a; font-size: 0.8rem; }
 </style>

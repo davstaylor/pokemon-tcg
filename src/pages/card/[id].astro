@@ -68,8 +68,8 @@ interface Props {
 const { card, priceRecord, history, rangeForCard, rates } = Astro.props;
 ---
 <Base title={`${card.defaultName} — Pokémon TCG Catalog`}>
-  <article data-pagefind-body data-pagefind-meta={`title:${card.defaultName}`}>
-    <h1>{card.defaultName}</h1>
+  <article data-pagefind-body data-pagefind-meta={`title:${card.defaultName}, subtitle:${card.filters.setName}`}>
+    <h1 data-pagefind-weight="10">{card.defaultName}</h1>
     <PrintGallery card={card} />
     {priceRecord !== null && priceRecord.sources.cardmarket && (
       <PriceTile
@@ -80,11 +80,11 @@ const { card, priceRecord, history, rangeForCard, rates } = Astro.props;
         rates={rates}
       />
     )}
-    <div style="position:absolute;left:-9999px" aria-hidden="true">
+    <div style="position:absolute;left:-9999px" aria-hidden="true" data-pagefind-weight="5">
       {card.searchTokens.join(' ')}
     </div>
     <aside>
-      <p>Set: {card.filters.setId}</p>
+      <p>Set: {card.filters.setName} <span style="color:#7a5e3a;font-size:0.8rem">({card.filters.setId})</span></p>
       <p>Rarity: {card.filters.rarity}</p>
       <p>Types: {card.filters.types.join(', ') || '—'}</p>
     </aside>

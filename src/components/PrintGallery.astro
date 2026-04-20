@@ -21,6 +21,11 @@ function available(languages: Language[]): PrintEntry[] {
   });
 }
 
+// Inline JS removed if the image fails to load — CSS `.image-placeholder:only-child`
+// rule then reveals the fallback div. Zero framework cost, works with JS disabled
+// (placeholder will never show, browser shows broken-image icon — acceptable).
+const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
+
 const primary = available(PRIMARY);
 const european = available(EUROPEAN);
 const asian = available(ASIAN);
@@ -32,11 +37,12 @@ const otherCount = european.length + asian.length;
       {primary.map(([lang, print]) => (
         <figure class="print primary-print" data-lang={lang}>
           <span class="lang-label">{LANG_DISPLAY[lang]}</span>
-          {print.imageURL ? (
-            <img src={print.imageURL} alt={print.name} loading="lazy" />
-          ) : (
+          <div class="image-wrap">
+            {print.imageURL && (
+              <img src={print.imageURL} alt={print.name} loading="lazy" onerror={ON_IMG_ERROR} />
+            )}
             <div class="image-placeholder">{card.id}</div>
-          )}
+          </div>
           <figcaption>{print.name}</figcaption>
         </figure>
       ))}
@@ -53,11 +59,12 @@ const otherCount = european.length + asian.length;
             {european.map(([lang, print]) => (
               <figure class="print secondary-print" data-lang={lang}>
                 <span class="lang-label">{LANG_DISPLAY[lang]}</span>
-                {print.imageURL ? (
-                  <img src={print.imageURL} alt={print.name} loading="lazy" />
-                ) : (
+                <div class="image-wrap">
+                  {print.imageURL && (
+                    <img src={print.imageURL} alt={print.name} loading="lazy" onerror={ON_IMG_ERROR} />
+                  )}
                   <div class="image-placeholder">{card.id}</div>
-                )}
+                </div>
                 <figcaption>{print.name}</figcaption>
               </figure>
             ))}
@@ -71,11 +78,12 @@ const otherCount = european.length + asian.length;
             {asian.map(([lang, print]) => (
               <figure class="print secondary-print" data-lang={lang}>
                 <span class="lang-label">{LANG_DISPLAY[lang]}</span>
-                {print.imageURL ? (
-                  <img src={print.imageURL} alt={print.name} loading="lazy" />
-                ) : (
+                <div class="image-wrap">
+                  {print.imageURL && (
+                    <img src={print.imageURL} alt={print.name} loading="lazy" onerror={ON_IMG_ERROR} />
+                  )}
                   <div class="image-placeholder">{card.id}</div>
-                )}
+                </div>
                 <figcaption>{print.name}</figcaption>
               </figure>
             ))}
@@ -89,12 +97,15 @@ const otherCount = european.length + asian.length;
 <style>
   .print-gallery { display: flex; flex-direction: column; gap: 1.5rem; }
 
+  /* Primary row: fixed-width cells so 2 prints don't stretch to ~500px each.
+     Pokémon cards at ~240px wide ≈ 336px tall — realistic viewing size. */
   .primary-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, 240px);
     gap: 1.5rem;
+    justify-content: start;
   }
-  .primary-print img { width: 100%; border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,0.16); }
+  .primary-print img { width: 100%; border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,0.16); display: block; }
   .primary-print figcaption { font-size: 1.05rem; font-weight: 700; margin-top: 0.6rem; }
 
   .other-languages {
@@ -124,7 +135,7 @@ const otherCount = european.length + asian.length;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 1rem;
   }
-  .secondary-print img { width: 100%; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .secondary-print img { width: 100%; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: block; }
   .secondary-print figcaption { font-size: 0.85rem; font-weight: 600; margin-top: 0.4rem; }
 
   .print { margin: 0; text-align: center; }
@@ -135,15 +146,23 @@ const otherCount = european.length + asian.length;
     color: #7a5e3a;
     margin-bottom: 0.35rem;
   }
+
+  /* Image fallback: on image load error the <img> removes itself, leaving the
+     placeholder as the only child of `.image-wrap`. The :only-child CSS rule
+     then reveals it. Works without JS state or external framework. */
+  .image-wrap { position: relative; }
   .image-placeholder {
     aspect-ratio: 2/3;
     background: #eee;
-    display: grid;
+    display: none;
     place-items: center;
     border-radius: 10px;
     color: #7a5e3a;
     font-weight: 600;
+    font-size: 0.85rem;
   }
+  .image-placeholder:only-child { display: grid; }
+
   figcaption { margin-top: 0.5rem; }
 
   @media (max-width: 640px) {

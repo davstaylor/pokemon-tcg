@@ -34,3 +34,4 @@ playwright-report/
 # Worker local env
 workers/history-api/.env.local
 workers/history-api/.wrangler/
+.claude/

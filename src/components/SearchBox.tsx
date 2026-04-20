@@ -4,7 +4,7 @@ type PagefindResult = {
   id: string;
   url: string;
   excerpt: string;
-  meta: { title?: string };
+  meta: { title?: string; subtitle?: string };
 };
 
 type Pagefind = {
@@ -65,6 +65,9 @@ export default function SearchBox({ initialQuery = '' }: { initialQuery?: string
           <li key={r.id} style={{ marginBottom: '0.75rem' }}>
             <a href={r.url} style={{ color: '#3b2a1a', textDecoration: 'none' }}>
               <strong>{r.meta.title ?? r.url}</strong>
+              {r.meta.subtitle && (
+                <span style={{ color: '#7a5e3a', fontSize: '0.85rem', marginLeft: '0.5rem' }}>— {r.meta.subtitle}</span>
+              )}
               <div style={{ color: '#7a5e3a', fontSize: '0.9rem' }} dangerouslySetInnerHTML={{ __html: r.excerpt }} />
             </a>
           </li>

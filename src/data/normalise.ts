@@ -96,6 +96,7 @@ export function normalise(dumps: RawDumps): CardIdentity[] {
           prints: { [lang]: print },
           filters: {
             setId: raw.set.id,
+            setName: raw.set.name,
             rarity: raw.rarity ?? 'Unknown',
             types: raw.types ?? [],
             series: deriveSeriesId(raw.set),

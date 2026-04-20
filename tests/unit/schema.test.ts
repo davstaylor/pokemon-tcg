@@ -22,7 +22,7 @@ describe('CardIdentitySchema', () => {
       defaultName: 'Charizard',
       prints: { en: { ...makePrint('Charizard'), flavorText: 'Spits fire.' } },
       searchTokens: ['Charizard'],
-      filters: { setId: 'base1', rarity: 'Holo Rare', types: ['Fire'], series: 'base' },
+      filters: { setId: 'base1', setName: 'Base', rarity: 'Holo Rare', types: ['Fire'], series: 'base' },
     };
     expect(() => CardIdentitySchema.parse(valid)).not.toThrow();
   });
@@ -40,7 +40,7 @@ describe('CardIdentitySchema', () => {
         'zh-cn': makePrint('喷火龙'),
       },
       searchTokens: ['Charizard', 'リザードン', 'Dracaufeu', 'Glurak', '噴火龍', '喷火龙'],
-      filters: { setId: 'base1', rarity: 'Holo Rare', types: ['Fire'], series: 'base' },
+      filters: { setId: 'base1', setName: 'Base', rarity: 'Holo Rare', types: ['Fire'], series: 'base' },
     };
     expect(() => CardIdentitySchema.parse(multi)).not.toThrow();
   });
@@ -51,7 +51,7 @@ describe('CardIdentitySchema', () => {
       defaultName: 'Charizard',
       prints: {},
       searchTokens: [],
-      filters: { setId: 'base1', rarity: 'x', types: [], series: 'base' },
+      filters: { setId: 'base1', setName: 'Base', rarity: 'x', types: [], series: 'base' },
     };
     expect(() => CardIdentitySchema.parse(empty)).toThrow();
   });
@@ -62,7 +62,7 @@ describe('CardIdentitySchema', () => {
       defaultName: 'Charizard',
       prints: { xx: makePrint('Unknown') },
       searchTokens: ['Charizard'],
-      filters: { setId: 'base1', rarity: 'x', types: [], series: 'base' },
+      filters: { setId: 'base1', setName: 'Base', rarity: 'x', types: [], series: 'base' },
     };
     expect(() => CardIdentitySchema.parse(bad)).toThrow();
   });
@@ -76,7 +76,7 @@ describe('CardIdentitySchema', () => {
       defaultName: 'Charizard',
       prints: { en: makePrint('Charizard'), ko: makePrint('리자몽') },
       searchTokens: ['Charizard', '리자몽'],
-      filters: { setId: 'base1', rarity: 'Holo Rare', types: ['Fire'], series: 'base' },
+      filters: { setId: 'base1', setName: 'Base', rarity: 'Holo Rare', types: ['Fire'], series: 'base' },
     };
     expect(() => CardIdentitySchema.parse(withKorean)).toThrow();
   });
