@@ -1,0 +1,33 @@
+---
+interface Props {
+  setName: string;
+  setSymbol: string;
+  cardCount: number;
+  releaseDate: string;
+}
+const { setName, setSymbol, cardCount, releaseDate } = Astro.props;
+
+// Match CardTile's image-error convention: JS removes the <img> when it fails,
+// so no broken-image icon shows. Fine if JS is disabled — user just sees the
+// browser's default broken-image rendering, which we accept.
+const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
+---
+<header class="set-header">
+  {setSymbol && (
+    <img class="symbol" src={setSymbol} alt="" loading="eager" onerror={ON_IMG_ERROR} />
+  )}
+  <div class="set-header-body">
+    <h1>{setName || 'Unknown set'}</h1>
+    <p class="meta">
+      {cardCount} {cardCount === 1 ? 'card' : 'cards'}
+      {releaseDate && <span> · released {releaseDate}</span>}
+    </p>
+  </div>
+</header>
+
+<style>
+  .set-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+  .set-header .symbol { width: 64px; height: 64px; object-fit: contain; flex: 0 0 auto; }
+  .set-header h1 { margin: 0; }
+  .set-header .meta { color: var(--muted); margin: 0.25rem 0 0; }
+</style>
