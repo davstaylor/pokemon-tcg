@@ -33,3 +33,13 @@ test('series page /series/base/ lists sets linking to /set/[setId]/', async ({ p
   await expect(firstLink).toHaveAttribute('href', /\/pokemon-tcg\/set\/base1\/$/);
   await expect(firstLink).toContainText('Base');
 });
+
+test('sets index /sets/ lists every series as a tile', async ({ page }) => {
+  await page.goto('sets/');
+  await expect(page.locator('h1')).toHaveText('All sets');
+  // Fixture: only "base" series exists.
+  const tiles = page.locator('.series-tile');
+  await expect(tiles).toHaveCount(1);
+  await expect(tiles.first()).toContainText('Base');
+  await expect(tiles.first()).toHaveAttribute('href', /\/pokemon-tcg\/series\/base\/$/);
+});

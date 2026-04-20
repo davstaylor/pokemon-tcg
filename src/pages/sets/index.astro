@@ -1,0 +1,53 @@
+---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '@/layouts/Base.astro';
+import type { CardIdentity } from '@/data/schema';
+import { groupSetsBySeries } from '@/data/set-groups';
+
+const cards: CardIdentity[] = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
+);
+const bySeries = groupSetsBySeries(cards);
+
+// Order series newest-first by their most-recent set's releaseDate.
+// Each SeriesSummary.sets is already sorted newest-first, so sets[0] is
+// the newest set in that series. Empty releaseDate sorts last.
+const seriesList = Array.from(bySeries.values()).sort((a, b) => {
+  const aLatest = a.sets[0]?.releaseDate ?? '';
+  const bLatest = b.sets[0]?.releaseDate ?? '';
+  return bLatest.localeCompare(aLatest);
+});
+
+const totalSets = seriesList.reduce((acc, s) => acc + s.setCount, 0);
+---
+<Base title="All sets — Pokémon TCG Catalog" description="Browse every Pokémon TCG series and set, newest first.">
+  <h1>All sets</h1>
+  <p class="summary">Browse {seriesList.length} {seriesList.length === 1 ? 'series' : 'series'}, {totalSets} {totalSets === 1 ? 'set' : 'sets'} total.</p>
+  <div class="series-grid">
+    {seriesList.map((s) => (
+      <a class="series-tile" href={`/pokemon-tcg/series/${s.seriesId}/`}>
+        <strong>{s.seriesName}</strong>
+        <span>{s.setCount} {s.setCount === 1 ? 'set' : 'sets'} · {s.cardCount} cards</span>
+      </a>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .summary { color: var(--muted); margin-bottom: 2rem; }
+  .series-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .series-tile {
+    padding: 1rem; border: 1px solid #d9c9a3; border-radius: 8px;
+    background: var(--paper); text-decoration: none; color: inherit;
+    transition: border-color 150ms ease;
+  }
+  .series-tile:hover { border-color: var(--accent); }
+  .series-tile:focus-visible { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: 2px; }
+  .series-tile strong { display: block; font-size: 1.1rem; }
+  .series-tile span { display: block; color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem; }
+</style>
