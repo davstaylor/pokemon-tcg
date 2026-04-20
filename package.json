@@ -32,7 +32,7 @@
     "pagefind": "^1.5.2",
     "preact": "^10.29.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.4"
   },
   "dependencies": {
