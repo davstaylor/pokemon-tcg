@@ -1,0 +1,51 @@
+---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '@/layouts/Base.astro';
+import CardTile from '@/components/CardTile.astro';
+import SetHeader from '@/components/SetHeader.astro';
+import type { CardIdentity } from '@/data/schema';
+import { groupCardsBySet, type SetPageData } from '@/data/set-groups';
+
+export async function getStaticPaths() {
+  const cards: CardIdentity[] = JSON.parse(
+    readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
+  );
+  const bySet = groupCardsBySet(cards);
+  return Array.from(bySet.entries()).map(([setId, data]) => ({
+    params: { setId },
+    props: { data },
+  }));
+}
+
+interface Props { data: SetPageData }
+const { data } = Astro.props;
+
+const title = `${data.setName || data.setId} — Pokémon TCG Catalog`;
+const releasedClause = data.releaseDate ? `, released ${data.releaseDate}` : '';
+const seriesClause = data.seriesName ? ` ${data.seriesName} series.` : '';
+const description = `All ${data.cardCount} cards from ${data.setName || data.setId}${releasedClause}.${seriesClause}`;
+---
+<Base title={title} description={description}>
+  <nav class="breadcrumb">
+    <a href={`/pokemon-tcg/series/${data.seriesId}/`}>← {data.seriesName} series</a>
+  </nav>
+  <SetHeader
+    setName={data.setName}
+    setSymbol={data.setSymbol}
+    cardCount={data.cardCount}
+    releaseDate={data.releaseDate}
+  />
+  <div class="card-grid">
+    {data.cards.map((card) => <CardTile card={card} />)}
+  </div>
+</Base>
+
+<style>
+  .breadcrumb { margin-bottom: 1rem; font-size: 0.9rem; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.5rem;
+  }
+</style>
