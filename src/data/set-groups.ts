@@ -80,12 +80,19 @@ export function groupCardsBySet(cards: CardIdentity[]): Map<string, SetPageData>
   }
 
   // Build series-name lookup: for each seriesId, the earliest-released set's
-  // setName wins. Ties on releaseDate fall through to first-seen (Map insertion
-  // order), which is deterministic given the stable input.
+  // setName wins. A set with a real releaseDate always beats one with an empty
+  // releaseDate (the '' fallback from pickSetMeta is an unknown-date signal,
+  // not a pre-1970 date). Ties between two equal non-empty dates — or between
+  // two empty dates — fall through to first-seen (Map insertion order), which
+  // is deterministic given the stable input.
   const seriesNames = new Map<string, { name: string; releaseDate: string }>();
   for (const g of working.values()) {
     const existing = seriesNames.get(g.seriesId);
-    if (!existing || (g.releaseDate && g.releaseDate < existing.releaseDate)) {
+    const displaces =
+      !existing ||
+      (g.releaseDate && !existing.releaseDate) ||
+      (g.releaseDate && existing.releaseDate && g.releaseDate < existing.releaseDate);
+    if (displaces) {
       seriesNames.set(g.seriesId, { name: g.setName || g.seriesId, releaseDate: g.releaseDate });
     }
   }
