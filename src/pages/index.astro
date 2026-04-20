@@ -25,6 +25,9 @@ const featured = cards.slice(0, 6);
     <div class="grid">
       {featured.map((card) => <CardTile card={card} />)}
     </div>
+    <div class="browse-all">
+      <a href="/pokemon-tcg/sets/">Browse all sets →</a>
+    </div>
   </section>
 </Base>
 
@@ -41,4 +44,5 @@ const featured = cards.slice(0, 6);
     background: var(--accent); color: white; cursor: pointer;
   }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+  .browse-all { margin-top: 2rem; text-align: center; }
 </style>

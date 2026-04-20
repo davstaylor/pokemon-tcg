@@ -13,3 +13,9 @@ test('footer shows TCGdex credit and build timestamp', async ({ page }) => {
   await expect(footer).toContainText('© The Pokémon Company');
   await expect(footer.locator('time')).toHaveAttribute('datetime', /^\d{4}-\d{2}-\d{2}T/);
 });
+
+test('home page has a Browse all sets link', async ({ page }) => {
+  await page.goto('./');
+  const link = page.locator('a', { hasText: /Browse all sets/i });
+  await expect(link).toHaveAttribute('href', /\/pokemon-tcg\/sets\/$/);
+});
