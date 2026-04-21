@@ -31,19 +31,34 @@ const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
   .card-tile img { width: 100%; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); display: block; }
 
   /* On image load error, <img> removes itself; placeholder becomes :only-child
-     and reveals via CSS. */
+     and reveals via CSS. The parchment gradient + dashed border + muted-tone
+     monospace ID makes a missing image blend with the site's palette instead
+     of showing a dead gray block. */
   .image-wrap { position: relative; }
   .placeholder {
     aspect-ratio: 2/3;
-    background: #eee;
+    background:
+      radial-gradient(circle at 50% 38%, rgba(122, 94, 58, 0.08) 0 22%, transparent 22%),
+      linear-gradient(135deg, #fffdf6 0%, #f5efe2 60%, #ebdfc2 100%);
+    border: 1px dashed #c8b78f;
     display: none;
-    place-items: center;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem;
     border-radius: 10px;
-    color: #7a5e3a;
-    font-weight: 600;
-    font-size: 0.75rem;
+    color: #a48e70;
+    text-align: center;
   }
-  .placeholder:only-child { display: grid; }
+  .placeholder::before {
+    content: 'No image';
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .placeholder { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; letter-spacing: 0.5px; }
+  .placeholder:only-child { display: flex; }
 
   .caption { margin-top: 0.5rem; font-size: 0.9rem; }
   .caption span { display: block; color: #7a5e3a; font-size: 0.8rem; }

@@ -3,21 +3,34 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import Base from '@/layouts/Base.astro';
 import SearchBox from '@/components/SearchBox';
-import FacetSidebar from '@/components/FacetSidebar';
+import FacetSidebar, { type FacetOption } from '@/components/FacetSidebar';
 import CardTile from '@/components/CardTile.astro';
 import type { CardIdentity } from '@/data/schema';
+import { groupSetsBySeries } from '@/data/set-groups';
 
 const cards: CardIdentity[] = JSON.parse(
   readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
 );
 const q = new URL(Astro.request.url).searchParams.get('q') ?? '';
+
+// Pre-compute facet labels at build time so the client island doesn't
+// re-derive them on every visit. groupSetsBySeries already does the
+// earliest-set-name resolution we need for series display names.
+const bySeries = groupSetsBySeries(cards);
+const serieses: FacetOption[] = Array.from(bySeries.values())
+  .map((s) => ({ id: s.seriesId, name: s.seriesName || s.seriesId }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+const sets: FacetOption[] = Array.from(bySeries.values())
+  .flatMap((s) => s.sets)
+  .map((s) => ({ id: s.setId, name: s.setName || s.setId }))
+  .sort((a, b) => a.name.localeCompare(b.name));
 ---
 <Base title={`Search — Pokémon TCG Catalog`}>
   <h1>Search</h1>
   <SearchBox client:load initialQuery={q} />
 
   <div style="display:grid;grid-template-columns:220px 1fr;gap:2rem;margin-top:2rem;">
-    <FacetSidebar client:load cards={cards} />
+    <FacetSidebar client:load cards={cards} sets={sets} serieses={serieses} />
     <div>
       <p><span data-result-count>{cards.length}</span> cards</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.5rem;">

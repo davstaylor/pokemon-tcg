@@ -50,3 +50,16 @@ test('clearing a facet restores all results', async ({ page }) => {
   await page.getByRole('button', { name: /Clear Type/i }).click();
   await expect(page.locator('[data-card-tile]:visible')).toHaveCount(2);
 });
+
+test('Set facet shows the human set name, not the set ID', async ({ page }) => {
+  await page.goto('search');
+  // Fixture's one set is id=base1, name="Base". The Set facet label should be
+  // the human name; the radio's value is still the ID so filter logic works.
+  const setRadio = page.locator('input[type=radio][name=set][value="base1"]');
+  await expect(setRadio).toBeVisible();
+  // The <label> wrapping the radio should read "Base", not "base1".
+  const setLabelText = await setRadio.locator('..').innerText();
+  expect(setLabelText.trim()).toBe('Base');
+  // The bare ID must NOT appear as any visible facet label.
+  await expect(page.locator('aside').getByText(/^\s*base1\s*$/)).toHaveCount(0);
+});

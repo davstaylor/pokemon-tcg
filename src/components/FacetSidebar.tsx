@@ -3,6 +3,13 @@ import type { CardIdentity } from '@/data/schema';
 
 type Filters = { set?: string; type?: string; rarity?: string; series?: string };
 
+// Facet option: stable ID (what the filter matches against) + display label
+// (what the user sees). For set/series the ID is the short code (e.g. "base1",
+// "swsh") and the label is the human name (e.g. "Base", "Sword & Shield"),
+// derived at build time in search.astro. For type/rarity the ID and label
+// are the same string (the raw filter value).
+export type FacetOption = { id: string; name: string };
+
 function applyFilter(filtered: CardIdentity[]) {
   const allowed = new Set(filtered.map((c) => c.id));
   document.querySelectorAll<HTMLElement>('[data-card-tile]').forEach((el) => {
@@ -13,13 +20,25 @@ function applyFilter(filtered: CardIdentity[]) {
   if (counter) counter.textContent = String(filtered.length);
 }
 
-export default function FacetSidebar({ cards }: { cards: CardIdentity[] }) {
+export default function FacetSidebar({
+  cards,
+  sets,
+  serieses,
+}: {
+  cards: CardIdentity[];
+  sets: FacetOption[];
+  serieses: FacetOption[];
+}) {
   const [filters, setFilters] = useState<Filters>({});
 
-  const sets = Array.from(new Set(cards.map((c) => c.filters.setId))).sort();
-  const types = Array.from(new Set(cards.flatMap((c) => c.filters.types))).sort();
-  const rarities = Array.from(new Set(cards.map((c) => c.filters.rarity))).sort();
-  const serieses = Array.from(new Set(cards.map((c) => c.filters.series))).sort();
+  // Type and rarity are cheap to derive client-side (few unique values, raw
+  // strings that double as both ID and label).
+  const types: FacetOption[] = Array.from(new Set(cards.flatMap((c) => c.filters.types)))
+    .sort()
+    .map((v) => ({ id: v, name: v }));
+  const rarities: FacetOption[] = Array.from(new Set(cards.map((c) => c.filters.rarity)))
+    .sort()
+    .map((v) => ({ id: v, name: v }));
 
   useEffect(() => {
     const filtered = cards.filter((c) => {
@@ -32,22 +51,22 @@ export default function FacetSidebar({ cards }: { cards: CardIdentity[] }) {
     applyFilter(filtered);
   }, [filters, cards]);
 
-  function renderFacet(label: string, key: keyof Filters, values: string[]) {
+  function renderFacet(label: string, key: keyof Filters, options: FacetOption[]) {
     return (
       <section style={{ marginBottom: '1.5rem' }}>
         <h3 style={{ fontSize: '0.8rem', letterSpacing: 2, textTransform: 'uppercase', color: '#7a5e3a' }}>{label}</h3>
         <ul style={{ listStyle: 'none', padding: 0 }}>
-          {values.map((v) => (
-            <li key={v}>
+          {options.map((opt) => (
+            <li key={opt.id}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0' }}>
                 <input
                   type="radio"
                   name={key}
-                  value={v}
-                  checked={filters[key] === v}
-                  onChange={() => setFilters({ ...filters, [key]: v })}
+                  value={opt.id}
+                  checked={filters[key] === opt.id}
+                  onChange={() => setFilters({ ...filters, [key]: opt.id })}
                 />
-                {v}
+                {opt.name}
               </label>
             </li>
           ))}
