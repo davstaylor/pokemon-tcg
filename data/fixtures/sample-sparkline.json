@@ -1,0 +1,31 @@
+{
+  "days": 30,
+  "cutoff": "2026-03-22",
+  "records": {
+    "base1-4": [
+      { "cardId": "base1-4", "date": "2026-03-22", "trend": 300, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-03-25", "trend": 305, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-03-28", "trend": 310, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-03-31", "trend": 315, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-04-03", "trend": 318, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-04-06", "trend": 322, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-04-09", "trend": 325, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-04-12", "trend": 330, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-04-14", "trend": 335, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-04-16", "trend": 340, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-04-18", "trend": 345, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-04-20", "trend": 355, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-4", "date": "2026-04-21", "trend": 360, "low": null, "avg30": null, "avg7": null, "avg1": null }
+    ],
+    "base1-2": [
+      { "cardId": "base1-2", "date": "2026-03-22", "trend": 80, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-2", "date": "2026-03-28", "trend": 78, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-2", "date": "2026-04-03", "trend": 75, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-2", "date": "2026-04-09", "trend": 70, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-2", "date": "2026-04-14", "trend": 65, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-2", "date": "2026-04-18", "trend": 62, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-2", "date": "2026-04-20", "trend": 60, "low": null, "avg30": null, "avg7": null, "avg1": null },
+      { "cardId": "base1-2", "date": "2026-04-21", "trend": 58, "low": null, "avg30": null, "avg7": null, "avg1": null }
+    ]
+  }
+}
