@@ -16,7 +16,7 @@ const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
   {setSymbol && (
     <img class="symbol" src={setSymbol} alt="" loading="eager" onerror={ON_IMG_ERROR} />
   )}
-  <div class="set-header-body">
+  <div>
     <h1>{setName || 'Unknown set'}</h1>
     <p class="meta">
       {cardCount} {cardCount === 1 ? 'card' : 'cards'}

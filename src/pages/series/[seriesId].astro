@@ -38,7 +38,7 @@ const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
           {s.setSymbol && (
             <img class="symbol" src={s.setSymbol} alt="" loading="lazy" onerror={ON_IMG_ERROR} />
           )}
-          <div class="set-row-body">
+          <div>
             <strong>{s.setName || s.setId}</strong>
             <span class="meta">
               {s.cardCount} cards{s.releaseDate ? ` · ${s.releaseDate}` : ''}
