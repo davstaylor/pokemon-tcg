@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import Base from '@/layouts/Base.astro';
 import HotSection from '@/components/HotSection.astro';
+import HotHoverPopup from '@/components/HotHoverPopup';
 import type { CardIdentity } from '@/data/schema';
 import { SparklineDumpSchema, type SparklineDump } from '@/data/history-schema';
 import {
@@ -60,7 +61,7 @@ const description = `Top 10 risers, fallers, gainers and losers over the last ${
     <HotSection title="Top € losers"  direction="down" metric="eur" rows={lists.eurLosers}   />
   </div>
 
-  <!-- HotHoverPopup island mount goes here in Task 7 -->
+  <HotHoverPopup client:load />
 </Base>
 
 <style>
