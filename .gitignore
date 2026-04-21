@@ -1,6 +1,9 @@
 # Brainstorming session artifacts (Claude Code visual companion)
 .superpowers/
 
+# Serena (semantic-coding tool) local cache
+.serena/
+
 # Dependencies
 node_modules/
 
