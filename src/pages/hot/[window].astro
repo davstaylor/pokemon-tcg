@@ -1,0 +1,94 @@
+---
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '@/layouts/Base.astro';
+import HotSection from '@/components/HotSection.astro';
+import type { CardIdentity } from '@/data/schema';
+import { SparklineDumpSchema, type SparklineDump } from '@/data/history-schema';
+import {
+  computeHotLists,
+  HOT_WINDOWS,
+  WINDOW_LABEL,
+  type HotWindow,
+  type HotLists,
+} from '@/data/hot-cards';
+
+export async function getStaticPaths() {
+  const cards: CardIdentity[] = JSON.parse(
+    readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
+  );
+  const sparkPath = resolve(process.cwd(), 'data/sparkline-snapshot.json');
+  const emptySparkline: SparklineDump = { days: 30, cutoff: '1970-01-01', records: {} };
+  const spark: SparklineDump = existsSync(sparkPath)
+    ? SparklineDumpSchema.parse(JSON.parse(readFileSync(sparkPath, 'utf8')))
+    : emptySparkline;
+
+  return HOT_WINDOWS.map((w) => ({
+    params: { window: w },
+    props: { lists: computeHotLists(cards, spark, w), window: w },
+  }));
+}
+
+interface Props { lists: HotLists; window: HotWindow }
+const { lists, window } = Astro.props;
+
+const label = WINDOW_LABEL[window];
+const title = `Hot cards — last ${label} — Pokémon TCG Catalog`;
+const description = `Top 10 risers, fallers, gainers and losers over the last ${label} in the Pokémon TCG catalog, updated daily.`;
+---
+<Base title={title} description={description}>
+  <header class="hot-header">
+    <h1>Hot cards</h1>
+    <p class="sub">Biggest movers over the last {label}. Updated with each deploy.</p>
+    <nav class="hot-tabs" aria-label="Time window">
+      {HOT_WINDOWS.map((w) => (
+        <a
+          href={`/pokemon-tcg/hot/${w}/`}
+          class={w === window ? 'on' : ''}
+          aria-current={w === window ? 'page' : undefined}
+        >
+          {WINDOW_LABEL[w]}
+        </a>
+      ))}
+    </nav>
+  </header>
+
+  <div class="hot-grid">
+    <HotSection title="Top % risers"  direction="up"   metric="pct" rows={lists.pctRisers}   />
+    <HotSection title="Top € gainers" direction="up"   metric="eur" rows={lists.eurGainers}  />
+    <HotSection title="Top % fallers" direction="down" metric="pct" rows={lists.pctFallers}  />
+    <HotSection title="Top € losers"  direction="down" metric="eur" rows={lists.eurLosers}   />
+  </div>
+
+  <!-- HotHoverPopup island mount goes here in Task 7 -->
+</Base>
+
+<style>
+  .hot-header { margin-bottom: 2rem; }
+  .hot-header h1 { margin: 0 0 0.25rem; }
+  .hot-header .sub { color: var(--muted); margin: 0 0 1rem; }
+
+  .hot-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .hot-tabs a {
+    padding: 0.4rem 1rem;
+    border-radius: 999px;
+    border: 1px solid #d9c9a3;
+    background: var(--paper);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  .hot-tabs a:hover { border-color: var(--accent); color: var(--ink); }
+  .hot-tabs a.on {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .hot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 1.25rem;
+  }
+</style>
