@@ -52,7 +52,9 @@ const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
     <p class="empty">Not enough history yet — check back tomorrow.</p>
   ) : (
     <ol class="hot-list">
-      {rows.map((row, i) => (
+      {rows.map((row, i) => {
+        const thumb = pickThumbnailUrl(row.card);
+        return (
         <li>
           <a
             class="hot-row"
@@ -63,15 +65,15 @@ const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
             data-current={row.currentEur}
             data-delta-eur={row.deltaEur}
             data-delta-pct={row.deltaPct}
-            data-image={pickThumbnailUrl(row.card)}
+            data-image={thumb}
             data-history={JSON.stringify(row.history)}
           >
             <span class="rk">{i + 1}</span>
             <div class="image-wrap">
-              {pickThumbnailUrl(row.card) && (
+              {thumb && (
                 <img
                   class="th"
-                  src={pickThumbnailUrl(row.card)}
+                  src={thumb}
                   alt=""
                   loading="lazy"
                   onerror={ON_IMG_ERROR}
@@ -89,7 +91,7 @@ const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
             </span>
           </a>
         </li>
-      ))}
+      ); })}
     </ol>
   )}
 </section>
@@ -113,7 +115,7 @@ const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
     font-weight: 600;
   }
   .hot-section .arrow.up { color: #2d7d47; }
-  .hot-section .arrow.dn { color: #b23a3a; }
+  .hot-section .arrow.down { color: #b23a3a; }
 
   .hot-section .empty { color: var(--muted); font-style: italic; margin: 0.5rem 0; font-size: 0.9rem; }
 
