@@ -19,3 +19,9 @@ test('home page has a Browse all sets link', async ({ page }) => {
   const link = page.locator('a', { hasText: /Browse all sets/i });
   await expect(link).toHaveAttribute('href', /\/pokemon-tcg\/sets\/$/);
 });
+
+test('home page has a See hot cards link', async ({ page }) => {
+  await page.goto('./');
+  const link = page.locator('a', { hasText: /See hot cards/i });
+  await expect(link).toHaveAttribute('href', /\/pokemon-tcg\/hot\/$/);
+});
