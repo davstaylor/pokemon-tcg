@@ -160,7 +160,12 @@ export default function HotHoverPopup() {
       if (!target) return;
       show(target);
     }
-    function onFocusOut() { hide(); }
+    function onFocusOut(e: FocusEvent) {
+      // Symmetric with onMouseOut: don't hide if focus is moving to another
+      // row (otherwise Tab-walking the list flickers the popup off/on).
+      const related = (e.relatedTarget as HTMLElement | null)?.closest('.hot-row');
+      if (!related) hide();
+    }
 
     // Tap-to-toggle on touch devices: a tap that's also a click navigates,
     // so we only preview the popup on touchstart before the click fires.
@@ -236,7 +241,7 @@ export default function HotHoverPopup() {
         }
         .hot-popup .pop-right { flex: 1; min-width: 0; display: flex; flex-direction: column; }
         .hot-popup .pop-name { font-weight: 600; font-size: 0.95rem; margin: 0 0 2px; }
-        .hot-popup .pop-set { color: #7a5e3a; font-size: 0.75rem; margin: 0 0 8px; }
+        .hot-popup .pop-set { color: var(--muted); font-size: 0.75rem; margin: 0 0 8px; }
         .hot-popup .pop-prices { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
         .hot-popup .pop-price { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
         .hot-popup .pop-delta { font-size: 0.85rem; font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -252,10 +257,10 @@ export default function HotHoverPopup() {
         .hot-popup .pop-spark svg { display: block; width: 100%; height: 100%; }
         .hot-popup .pop-range {
           display: flex; justify-content: space-between;
-          font-size: 0.7rem; color: #7a5e3a; margin: 4px 0 0;
+          font-size: 0.7rem; color: var(--muted); margin: 4px 0 0;
         }
         .hot-popup .pop-foot {
-          text-align: center; font-size: 0.7rem; color: #c86f3d;
+          text-align: center; font-size: 0.7rem; color: var(--accent);
           margin: 6px 0 0; padding-top: 6px; border-top: 1px solid #ebdfc2;
         }
       `}</style>
