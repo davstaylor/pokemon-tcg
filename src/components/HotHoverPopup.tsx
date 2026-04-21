@@ -71,10 +71,8 @@ export default function HotHoverPopup() {
   const popupRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const popupOrNull = popupRef.current;
-    if (!popupOrNull) return;
-    // Assert non-null so inner closures (show/hide) can use it without TS complaining.
-    const popup = popupOrNull as HTMLDivElement;
+    if (!popupRef.current) return;
+    const popup = popupRef.current;
 
     // Shared element references inside the popup — cached on first render
     // so hover handlers don't re-query.
@@ -133,10 +131,8 @@ export default function HotHoverPopup() {
       const top = rowRect.top + window.scrollY;
       popup.style.left = `${Math.max(VIEWPORT_MARGIN, left)}px`;
       popup.style.top = `${top}px`;
-      popup.classList.toggle('tail-right', flipLeft);
-      popup.classList.toggle('tail-left', !flipLeft);
       popup.classList.add('visible');
-      popup.setAttribute('aria-hidden', 'false');
+      popup.removeAttribute('aria-hidden');
 
       currentRow = row;
     }
@@ -192,7 +188,7 @@ export default function HotHoverPopup() {
   return (
     <div class="hot-popup" ref={popupRef} role="tooltip" aria-hidden="true">
       <div class="pop-left">
-        <img alt="" loading="lazy" />
+        <img alt="" />
         <div class="pop-img-placeholder" />
       </div>
       <div class="pop-right">
