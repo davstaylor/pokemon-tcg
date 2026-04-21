@@ -44,3 +44,21 @@ test('other windows are reachable: /hot/24h/ and /hot/30d/', async ({ page }) =>
   expect(r2?.ok()).toBe(true);
   await expect(page.locator('.hot-tabs a.on')).toHaveText('30 days');
 });
+
+test('hovering a hot-row shows the popup with card name + sparkline', async ({ page }) => {
+  await page.goto('hot/7d/');
+  const firstRow = page.locator('.hot-section[data-direction="up"] .hot-row').first();
+  await firstRow.hover();
+
+  const popup = page.locator('.hot-popup');
+  await expect(popup).toHaveClass(/visible/);
+  await expect(popup.locator('.pop-name')).toHaveText(/Charizard/);
+  // The sparkline polyline should have a non-empty points attribute.
+  const points = await popup.locator('polyline').getAttribute('points');
+  expect(points).toBeTruthy();
+  expect(points!.split(' ').length).toBeGreaterThanOrEqual(2);
+
+  // Move elsewhere — popup hides.
+  await page.locator('h1').hover();
+  await expect(popup).not.toHaveClass(/visible/);
+});
