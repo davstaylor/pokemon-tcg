@@ -10,14 +10,24 @@ type Filters = { set?: string; type?: string; rarity?: string; series?: string }
 // are the same string (the raw filter value).
 export type FacetOption = { id: string; name: string };
 
+// Recompute the visible-tile counter after any filter class is toggled.
+// Both islands (SearchBox + FacetSidebar) write this so the counter reflects
+// the intersection of all active filters rather than whichever ran last.
+function updateVisibleCount() {
+  const visible = document.querySelectorAll(
+    '[data-card-tile]:not(.hidden-by-facet):not(.hidden-by-search)',
+  ).length;
+  const counter = document.querySelector('[data-result-count]');
+  if (counter) counter.textContent = String(visible);
+}
+
 function applyFilter(filtered: CardIdentity[]) {
   const allowed = new Set(filtered.map((c) => c.id));
   document.querySelectorAll<HTMLElement>('[data-card-tile]').forEach((el) => {
     const id = el.getAttribute('data-card-id');
-    el.style.display = id && allowed.has(id) ? '' : 'none';
+    el.classList.toggle('hidden-by-facet', !id || !allowed.has(id));
   });
-  const counter = document.querySelector('[data-result-count]');
-  if (counter) counter.textContent = String(filtered.length);
+  updateVisibleCount();
 }
 
 export default function FacetSidebar({

@@ -32,6 +32,14 @@ const sets: FacetOption[] = Array.from(bySeries.values())
   <div style="display:grid;grid-template-columns:220px 1fr;gap:2rem;margin-top:2rem;">
     <FacetSidebar client:load cards={cards} sets={sets} serieses={serieses} />
     <div>
+      <style>
+        /* A tile is hidden if either filter island says so. Composing via
+           CSS classes (rather than inline display) lets SearchBox and
+           FacetSidebar each own its own filter without clobbering the
+           other's opinion. */
+        [data-card-tile].hidden-by-facet,
+        [data-card-tile].hidden-by-search { display: none; }
+      </style>
       <p><span data-result-count>{cards.length}</span> cards</p>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.5rem;">
         {cards.map((card) => (

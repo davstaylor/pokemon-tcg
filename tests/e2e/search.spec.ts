@@ -1,39 +1,67 @@
 import { test, expect } from '@playwright/test';
 
-test('searching "Charizard" finds base1-4', async ({ page }) => {
+// The fixture has 2 cards: base1-4 (Charizard) and base1-2 (Blastoise).
+// The search box filters the grid by toggling `.hidden-by-search` on tile
+// wrappers, so each language test asserts the grid is narrowed to 1 visible
+// tile whose name matches the expected card.
+
+test('searching "Charizard" narrows grid to base1-4', async ({ page }) => {
   await page.goto('search');
   await page.fill('input[type=search]', 'Charizard');
-  await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(1);
+  await expect(page.locator('[data-card-tile]:visible')).toContainText('Charizard');
 });
 
-test('searching in Japanese "リザードン" finds base1-4', async ({ page }) => {
+test('searching in Japanese "リザードン" narrows grid to base1-4', async ({ page }) => {
   await page.goto('search');
   await page.fill('input[type=search]', 'リザードン');
-  await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(1);
+  await expect(page.locator('[data-card-tile]:visible')).toContainText('Charizard');
 });
 
-test('searching in French "Dracaufeu" finds base1-4', async ({ page }) => {
+test('searching in French "Dracaufeu" narrows grid to base1-4', async ({ page }) => {
   await page.goto('search');
   await page.fill('input[type=search]', 'Dracaufeu');
-  await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(1);
+  await expect(page.locator('[data-card-tile]:visible')).toContainText('Charizard');
 });
 
-test('searching in German "Glurak" finds base1-4', async ({ page }) => {
+test('searching in German "Glurak" narrows grid to base1-4', async ({ page }) => {
   await page.goto('search');
   await page.fill('input[type=search]', 'Glurak');
-  await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(1);
+  await expect(page.locator('[data-card-tile]:visible')).toContainText('Charizard');
 });
 
-test('searching in Traditional Chinese "噴火龍" finds base1-4', async ({ page }) => {
+test('searching in Traditional Chinese "噴火龍" narrows grid to base1-4', async ({ page }) => {
   await page.goto('search');
   await page.fill('input[type=search]', '噴火龍');
-  await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(1);
+  await expect(page.locator('[data-card-tile]:visible')).toContainText('Charizard');
 });
 
-test('searching in Simplified Chinese "喷火龙" finds base1-4', async ({ page }) => {
+test('searching in Simplified Chinese "喷火龙" narrows grid to base1-4', async ({ page }) => {
   await page.goto('search');
   await page.fill('input[type=search]', '喷火龙');
-  await expect(page.locator('ul a[href*="/card/base1-4"]')).toBeVisible();
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(1);
+  await expect(page.locator('[data-card-tile]:visible')).toContainText('Charizard');
+});
+
+test('clearing the search box restores the full grid', async ({ page }) => {
+  await page.goto('search');
+  await page.fill('input[type=search]', 'Charizard');
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(1);
+  await page.fill('input[type=search]', '');
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(2);
+});
+
+test('search + facet compose: "Charizard" + Water shows zero tiles', async ({ page }) => {
+  await page.goto('search');
+  await page.fill('input[type=search]', 'Charizard');
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(1);
+  // Water is Blastoise's type, Charizard is Fire — intersection is empty.
+  await page.locator('input[type=radio][name=type][value="Water"]').check();
+  await expect(page.locator('[data-card-tile]:visible')).toHaveCount(0);
 });
 
 test('filtering by Type=Water narrows results to Blastoise', async ({ page }) => {
