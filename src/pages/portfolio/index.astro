@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 import Base from '@/layouts/Base.astro';
 import PortfolioDashboard from '@/components/PortfolioDashboard';
 import { ExchangeRatesSchema, type ExchangeRates } from '@/data/currency-schema';
+import type { CardIdentity } from '@/data/schema';
+import { buildCardIndex } from '@/data/card-index';
 
 const title = 'My portfolio — Pokémon TCG Catalog';
 const description = 'Your personal Pokémon TCG collection — total value, P&L, and a 30-day value trend. Stored in your browser.';
@@ -15,13 +17,18 @@ const fallbackRates: ExchangeRates = {
 const rates: ExchangeRates = existsSync(ratesPath)
   ? ExchangeRatesSchema.parse(JSON.parse(readFileSync(ratesPath, 'utf8')))
   : fallbackRates;
+
+const cards: CardIdentity[] = JSON.parse(
+  readFileSync(resolve(process.cwd(), 'data/cards.json'), 'utf8'),
+);
+const cardIndex = buildCardIndex(cards);
 ---
 <Base title={title} description={description} noindex={true}>
   <header class="portfolio-header">
     <h1>My portfolio</h1>
     <p class="sub">Track what you own and what it's worth now.</p>
   </header>
-  <PortfolioDashboard client:load rates={rates} />
+  <PortfolioDashboard client:load rates={rates} cardIndex={cardIndex} />
 </Base>
 
 <style>

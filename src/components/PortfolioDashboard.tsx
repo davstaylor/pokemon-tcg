@@ -6,6 +6,7 @@ import { convertBetween } from '@/data/currency';
 import { computeSummary, computeTrendSeries, type PortfolioSummary, type TrendPoint } from '@/data/portfolio-aggregate';
 import { PortfolioFileSchema, type PortfolioFile } from '@/data/portfolio-schema';
 import type { SparklineDump } from '@/data/history-schema';
+import type { CardIndex } from '@/data/card-index';
 
 const CURRENCY_STORAGE_KEY = 'pokemon-tcg-currency';
 
@@ -132,13 +133,26 @@ const TABLE_STYLES = `
   }
   .portfolio-table tr:last-child td { border-bottom: 0; }
   .portfolio-table .th-cell { padding: 0.3rem 0.4rem 0.3rem 0.6rem; }
+  .portfolio-table .image-wrap { position: relative; width: 24px; height: 33px; }
   .portfolio-table .th-img {
+    width: 24px; height: 33px;
+    object-fit: cover;
+    border-radius: 3px;
+    display: block;
+  }
+  .portfolio-table .th-placeholder {
     width: 24px; height: 33px;
     background: linear-gradient(135deg, #d9c9a3, #c8b78f);
     border-radius: 3px;
+    display: none;
   }
-  .portfolio-table a.card-link { color: inherit; text-decoration: none; font-weight: 600; }
-  .portfolio-table a.card-link:hover { text-decoration: underline; }
+  .portfolio-table .th-placeholder:only-child { display: block; }
+  .portfolio-table a.card-link {
+    color: inherit; text-decoration: none; display: block; line-height: 1.2;
+  }
+  .portfolio-table a.card-link strong { display: block; font-weight: 600; }
+  .portfolio-table a.card-link small { display: block; color: var(--muted); font-size: 0.75rem; }
+  .portfolio-table a.card-link:hover strong { text-decoration: underline; }
   .portfolio-table input[name=qty] { width: 48px; }
   .portfolio-table input[name=cost] { width: 72px; }
   .portfolio-table input { padding: 0.2rem 0.3rem; border: 1px solid #d9c9a3; border-radius: 4px; background: #fffdf6; font-size: 0.85rem; text-align: right; font-variant-numeric: tabular-nums; }
@@ -248,7 +262,7 @@ function rowCurrentValueInDisplay(
   return qty * (display === 'EUR' ? curEur : curEur * rates.rates[display]);
 }
 
-export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) {
+export default function PortfolioDashboard({ rates, cardIndex }: { rates: ExchangeRates; cardIndex: CardIndex }) {
   const [file, setFile] = useState<PortfolioFile | null>(null);
   const [dump, setDump] = useState<SparklineDump | null>(null);
   const [currency, setCurrency] = useState<SupportedCurrency>('GBP');
@@ -592,10 +606,24 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
               return (
                 <tr key={e.cardId}>
                   <td class="th-cell">
-                    <div class="th-img" />
+                    <div class="image-wrap">
+                      {cardIndex[e.cardId]?.thumbUrl && (
+                        <img
+                          class="th-img"
+                          src={cardIndex[e.cardId].thumbUrl}
+                          alt=""
+                          loading="lazy"
+                          onError={(e) => { const img = e.currentTarget as HTMLImageElement; img.onerror = null; img.remove(); }}
+                        />
+                      )}
+                      <div class="th-placeholder" />
+                    </div>
                   </td>
                   <td>
-                    <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/card/${e.cardId}/`} class="card-link">{e.cardId}</a>
+                    <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/card/${e.cardId}/`} class="card-link">
+                      <strong>{cardIndex[e.cardId]?.name ?? e.cardId}</strong>
+                      {cardIndex[e.cardId]?.setName && <small>{cardIndex[e.cardId].setName}</small>}
+                    </a>
                   </td>
                   <td class="r">
                     <input

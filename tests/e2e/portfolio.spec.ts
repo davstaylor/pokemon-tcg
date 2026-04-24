@@ -109,7 +109,8 @@ test('holdings table supports inline edit + remove', async ({ page }) => {
   await page.goto('portfolio/');
   const row = page.locator('.portfolio-table tbody tr').first();
   await expect(row).toBeVisible();
-  await expect(row).toContainText('base1-4');  // card link text shows card id (no card-name lookup on portfolio page)
+  await expect(row).toContainText('Charizard');
+  await expect(row).toContainText('Base');
 
   // Edit qty: 1 → 3.
   const qtyInput = row.locator('input[name=qty]');
