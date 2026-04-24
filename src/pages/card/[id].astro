@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import Base from '@/layouts/Base.astro';
 import PrintGallery from '@/components/PrintGallery.astro';
 import PriceTile from '@/components/PriceTile.astro';
-import type { CardIdentity } from '@/data/schema';
+import type { CardIdentity, Language } from '@/data/schema';
 import type { PriceFile, CardPriceRecord } from '@/data/price-schema';
 import type { SparklineDump, RangeDump, Snapshot, Range } from '@/data/history-schema';
 import type { SupportedCurrency, ExchangeRates } from '@/data/currency-schema';
@@ -66,9 +66,19 @@ interface Props {
   rates: ExchangeRates;
 }
 const { card, priceRecord, history, rangeForCard, rates } = Astro.props;
+
+const LANG_ORDER_FOR_THUMB: Language[] = ['en', 'ja', 'fr', 'de', 'it', 'es', 'pt', 'zh-tw', 'zh-cn', 'th', 'id'];
+function pickThumbUrl(c: CardIdentity): string {
+  for (const lang of LANG_ORDER_FOR_THUMB) {
+    const p = c.prints[lang];
+    if (p && p.imageURL) return p.imageURL;
+  }
+  return '';
+}
+const pagefindThumb = pickThumbUrl(card);
 ---
 <Base title={`${card.defaultName} — Pokémon TCG Catalog`}>
-  <article data-pagefind-body data-pagefind-meta={`title:${card.defaultName}, subtitle:${card.filters.setName}`}>
+  <article data-pagefind-body data-pagefind-meta={`title:${card.defaultName}, subtitle:${card.filters.setName}, thumb:${pagefindThumb}, cardId:${card.id}`}>
     <h1 data-pagefind-weight="10">{card.defaultName}</h1>
     <PrintGallery card={card} />
     {priceRecord !== null && priceRecord.sources.cardmarket && (
