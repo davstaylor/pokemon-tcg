@@ -44,3 +44,27 @@ test('card page set line links to /set/[setId]/', async ({ page }) => {
   await expect(setLink).toHaveAttribute('href', /\/pokemon-tcg\/set\/base1\/$/);
   await expect(setLink).toHaveText('Base'); // fixture set name
 });
+
+test('card page "Add to my cards" button adds to portfolio', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.removeItem('pokemon-tcg:portfolio');
+    // Pin display currency for locale determinism.
+    localStorage.setItem('pokemon-tcg-currency', 'GBP');
+  });
+  await page.goto('card/base1-4');
+  const button = page.locator('.portfolio-add-btn');
+  await expect(button).toBeVisible();
+  await expect(button).toHaveText(/Add to my cards/);
+
+  await button.click();
+  await page.locator('.portfolio-add-btn input[name=qty]').fill('1');
+  await page.locator('.portfolio-add-btn input[name=cost]').fill('100');
+  await page.locator('.portfolio-add-btn button[data-action=save]').click();
+
+  // Button transforms to "Owned" state.
+  await expect(page.locator('.portfolio-add-btn')).toContainText(/Owned/);
+
+  // Reload — state persists via localStorage.
+  await page.reload();
+  await expect(page.locator('.portfolio-add-btn')).toContainText(/Owned/);
+});

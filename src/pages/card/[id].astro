@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import Base from '@/layouts/Base.astro';
 import PrintGallery from '@/components/PrintGallery.astro';
 import PriceTile from '@/components/PriceTile.astro';
+import PortfolioAddButton from '@/components/PortfolioAddButton';
 import type { CardIdentity, Language } from '@/data/schema';
 import type { PriceFile, CardPriceRecord } from '@/data/price-schema';
 import type { SparklineDump, RangeDump, Snapshot, Range } from '@/data/history-schema';
@@ -102,5 +103,6 @@ const pagefindThumb = pickThumbUrl(card);
       <p>Rarity: {card.filters.rarity}</p>
       <p>Types: {card.filters.types.join(', ') || '—'}</p>
     </aside>
+    <PortfolioAddButton client:load cardId={card.id} cardName={card.defaultName} rates={rates} />
   </article>
 </Base>
