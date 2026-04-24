@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { convertFromEUR, formatCurrency } from '@/data/currency';
+import { convertFromEUR, formatCurrency, convertBetween } from '@/data/currency';
 import type { ExchangeRates } from '@/data/currency-schema';
 
 const rates: ExchangeRates = {
@@ -41,5 +41,30 @@ describe('formatCurrency', () => {
   });
   it('renders em-dash for null values', () => {
     expect(formatCurrency(null, 'EUR')).toBe('—');
+  });
+});
+
+const rates2 = { base: 'EUR' as const, date: '2026-04-22', rates: { USD: 1.08, GBP: 0.86, JPY: 162.0 } };
+
+describe('convertBetween', () => {
+  it('returns value unchanged when from === to', () => {
+    expect(convertBetween(100, 'GBP', 'GBP', rates2)).toBe(100);
+    expect(convertBetween(42, 'EUR', 'EUR', rates2)).toBe(42);
+  });
+
+  it('converts via EUR for non-EUR pairs', () => {
+    // £100 → €100 / 0.86 = €116.28... → $116.28 × 1.08 = $125.58...
+    const usd = convertBetween(100, 'GBP', 'USD', rates2);
+    expect(usd).toBeCloseTo((100 / 0.86) * 1.08, 3);
+  });
+
+  it('converts EUR → target via the direct multiplier', () => {
+    expect(convertBetween(100, 'EUR', 'USD', rates2)).toBeCloseTo(108, 3);
+    expect(convertBetween(100, 'EUR', 'GBP', rates2)).toBeCloseTo(86, 3);
+  });
+
+  it('converts target → EUR via the direct divisor', () => {
+    expect(convertBetween(108, 'USD', 'EUR', rates2)).toBeCloseTo(100, 3);
+    expect(convertBetween(86, 'GBP', 'EUR', rates2)).toBeCloseTo(100, 3);
   });
 });

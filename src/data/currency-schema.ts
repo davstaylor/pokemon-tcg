@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const SUPPORTED_CURRENCIES = ['EUR', 'USD', 'GBP', 'JPY'] as const;
 export type SupportedCurrency = typeof SUPPORTED_CURRENCIES[number];
+export const SupportedCurrencySchema = z.enum(SUPPORTED_CURRENCIES);
 
 // Each currency's decimal-places in display (JPY has 0, others 2)
 export const CURRENCY_DECIMALS: Record<SupportedCurrency, number> = {

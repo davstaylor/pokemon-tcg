@@ -20,3 +20,15 @@ export function formatCurrency(value: number | null, currency: SupportedCurrency
   });
   return `${CURRENCY_GLYPH[currency]}${formatter.format(value)}`;
 }
+
+export function convertBetween(
+  value: number,
+  from: SupportedCurrency,
+  to: SupportedCurrency,
+  rates: ExchangeRates,
+): number {
+  if (from === to) return value;
+  // All rates are stored as EUR → X multipliers. Convert via EUR.
+  const inEur = from === 'EUR' ? value : value / rates.rates[from];
+  return to === 'EUR' ? inEur : inEur * rates.rates[to];
+}
