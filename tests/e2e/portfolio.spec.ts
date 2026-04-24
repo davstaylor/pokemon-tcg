@@ -143,6 +143,34 @@ test('import JSON replaces the portfolio', async ({ page }) => {
   await expect(page.locator('.portfolio-stats [data-stat=cards]')).toHaveText('3');  // 1 + 2
 });
 
+test('autocomplete is keyboard navigable', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('pokemon-tcg-currency', 'GBP');
+  });
+  await page.goto('portfolio/');
+  const search = page.locator('.portfolio-add input[type=search]');
+  await search.click();
+  await search.fill('Charizard');
+
+  // Wait for suggestions to render.
+  await expect(page.locator('.portfolio-add .suggestions li').first()).toBeVisible();
+
+  // Arrow Down selects the first item visually.
+  await search.press('ArrowDown');
+  await expect(page.locator('.portfolio-add .suggestions li.active')).toHaveCount(1);
+  await expect(page.locator('.portfolio-add .suggestions li').first()).toHaveClass(/active/);
+
+  // Enter picks it — same effect as a click.
+  await search.press('Enter');
+  // Qty input should be focused & the form should be ready to save.
+  await expect(page.locator('.portfolio-add input[name=qty]')).toBeFocused();
+  // Fill and add.
+  await page.locator('.portfolio-add input[name=qty]').fill('1');
+  await page.locator('.portfolio-add input[name=cost]').fill('50');
+  await page.locator('.portfolio-add button[data-action=add]').click();
+  await expect(page.locator('.portfolio-table tbody tr')).toHaveCount(1);
+});
+
 test('autocomplete with already-owned card switches to Update mode', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('pokemon-tcg-currency', 'GBP');

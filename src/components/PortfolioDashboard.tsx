@@ -95,7 +95,12 @@ const ADD_FORM_STYLES = `
     padding: 0.35rem 0.6rem;
     cursor: pointer;
   }
-  .portfolio-add .suggestions li:hover { background: #f5efe2; }
+  .portfolio-add .suggestions li:hover,
+  .portfolio-add .suggestions li.active {
+    background: #f5efe2;
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
   .portfolio-add .suggestions img {
     width: 24px; height: 33px; object-fit: cover; border-radius: 2px;
     background: linear-gradient(135deg, #d9c9a3, #c8b78f); flex: 0 0 auto;
@@ -286,6 +291,7 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
 
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<PagefindResult[]>([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const [selected, setSelected] = useState<{ cardId: string; cardName: string; thumb: string } | null>(null);
   const [qty, setQty] = useState('1');
   const [cost, setCost] = useState('');
@@ -317,6 +323,7 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
   useEffect(() => {
     if (!pagefind || query.length < 2) {
       setSuggestions([]);
+      setActiveIndex(-1);
       return;
     }
     let cancelled = false;
@@ -326,6 +333,7 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
       const data = await Promise.all(raw.results.slice(0, 10).map((r) => r.data()));
       if (cancelled) return;
       setSuggestions(data);
+      setActiveIndex(-1);
     })();
     return () => { cancelled = true; };
   }, [query, pagefind]);
@@ -460,11 +468,41 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
                 setUpdateMode(false);
               }
             }}
+            onKeyDown={(e) => {
+              if (suggestions.length === 0) return;
+              const key = (e as KeyboardEvent).key;
+              if (key === 'ArrowDown') {
+                e.preventDefault();
+                setActiveIndex((i) => Math.min(i + 1, suggestions.length - 1));
+              } else if (key === 'ArrowUp') {
+                e.preventDefault();
+                setActiveIndex((i) => Math.max(i - 1, 0));
+              } else if (key === 'Enter' && activeIndex >= 0 && activeIndex < suggestions.length) {
+                e.preventDefault();
+                selectSuggestion(suggestions[activeIndex]);
+              } else if (key === 'Escape') {
+                setSuggestions([]);
+                setActiveIndex(-1);
+              }
+            }}
+            role="combobox"
+            aria-expanded={suggestions.length > 0}
+            aria-autocomplete="list"
+            aria-controls="portfolio-suggestions"
+            aria-activedescendant={activeIndex >= 0 ? `suggestion-${activeIndex}` : undefined}
           />
           {suggestions.length > 0 && (
-            <ul class="suggestions">
-              {suggestions.map((r) => (
-                <li key={r.id} onClick={() => selectSuggestion(r)}>
+            <ul class="suggestions" id="portfolio-suggestions" role="listbox">
+              {suggestions.map((r, i) => (
+                <li
+                  key={r.id}
+                  id={`suggestion-${i}`}
+                  role="option"
+                  aria-selected={i === activeIndex}
+                  class={i === activeIndex ? 'active' : ''}
+                  onClick={() => selectSuggestion(r)}
+                  onMouseEnter={() => setActiveIndex(i)}
+                >
                   {r.meta.thumb && <img src={r.meta.thumb} alt="" loading="lazy" />}
                   <span class="nm">
                     <strong>{r.meta.title ?? r.url}</strong>
