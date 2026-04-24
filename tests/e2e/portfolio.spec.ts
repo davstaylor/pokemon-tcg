@@ -142,3 +142,31 @@ test('import JSON replaces the portfolio', async ({ page }) => {
   await expect(page.locator('.portfolio-table tbody tr')).toHaveCount(2);
   await expect(page.locator('.portfolio-stats [data-stat=cards]')).toHaveText('3');  // 1 + 2
 });
+
+test('autocomplete with already-owned card switches to Update mode', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('pokemon-tcg-currency', 'GBP');
+    localStorage.setItem('pokemon-tcg:portfolio', JSON.stringify({
+      version: 1,
+      entries: [{ cardId: 'base1-4', qty: 2, costValue: 200, costCurrency: 'GBP', addedAt: '2026-04-20' }],
+    }));
+  });
+  await page.goto('portfolio/');
+  await page.locator('.portfolio-add input[type=search]').fill('Charizard');
+  await page.locator('.portfolio-add .suggestions li').first().click();
+
+  // Qty and cost should be pre-filled from the existing entry.
+  await expect(page.locator('.portfolio-add input[name=qty]')).toHaveValue('2');
+  await expect(page.locator('.portfolio-add input[name=cost]')).toHaveValue('200');
+  // Button text changes.
+  await expect(page.locator('.portfolio-add button[data-action=add]')).toHaveText(/Update/i);
+
+  // Edit cost to 500 and save.
+  await page.locator('.portfolio-add input[name=cost]').fill('500');
+  await page.locator('.portfolio-add button[data-action=add]').click();
+
+  // Still 1 row (not 2), with the new cost — NOT sum of old and new.
+  await expect(page.locator('.portfolio-table tbody tr')).toHaveCount(1);
+  // Cost input in the table shows 500.
+  await expect(page.locator('.portfolio-table tbody tr input[name=cost]').first()).toHaveValue('500');
+});

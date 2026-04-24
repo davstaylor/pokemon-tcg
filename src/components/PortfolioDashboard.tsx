@@ -289,6 +289,7 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
   const [selected, setSelected] = useState<{ cardId: string; cardName: string; thumb: string } | null>(null);
   const [qty, setQty] = useState('1');
   const [cost, setCost] = useState('');
+  const [updateMode, setUpdateMode] = useState(false);
   const [pagefind, setPagefind] = useState<Pagefind | null>(null);
 
   const [importOpen, setImportOpen] = useState(false);
@@ -339,6 +340,19 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
     });
     setQuery(r.meta.title ?? '');
     setSuggestions([]);
+    // If this card is already in the portfolio, switch to Update mode and
+    // pre-fill qty + cost from the existing entry. Otherwise reset to defaults.
+    const { file: current } = loadPortfolioSafe();
+    const existing = current.entries.find((e) => e.cardId === cardId) ?? null;
+    if (existing !== null) {
+      setUpdateMode(true);
+      setQty(String(existing.qty));
+      setCost(String(existing.costValue));
+    } else {
+      setUpdateMode(false);
+      setQty('1');
+      setCost('');
+    }
     // Focus qty — deferred so the render commits first.
     requestAnimationFrame(() => {
       (document.querySelector('.portfolio-add input[name=qty]') as HTMLInputElement | null)?.focus();
@@ -353,12 +367,14 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
     if (!Number.isFinite(costNum) || costNum < 0) return;
     const todayIso = new Date().toISOString().slice(0, 10);
     const { file: current } = loadPortfolioSafe();
-    const next = addEntry(
-      current,
-      { cardId: selected.cardId, qty: qtyNum, costValue: costNum, costCurrency: currency },
-      rates,
-      todayIso,
-    );
+    const next = updateMode
+      ? updateEntry(current, selected.cardId, { qty: qtyNum, costValue: costNum })
+      : addEntry(
+          current,
+          { cardId: selected.cardId, qty: qtyNum, costValue: costNum, costCurrency: currency },
+          rates,
+          todayIso,
+        );
     savePortfolio(next);
     setFile(next);
     // Reset form.
@@ -366,6 +382,7 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
     setQuery('');
     setQty('1');
     setCost('');
+    setUpdateMode(false);
   }
 
   function handleQtyChange(cardId: string, raw: string) {
@@ -438,7 +455,10 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
             value={query}
             onInput={(e) => {
               setQuery((e.target as HTMLInputElement).value);
-              if (selected) setSelected(null);  // user is typing again
+              if (selected) {
+                setSelected(null);  // user is typing again
+                setUpdateMode(false);
+              }
             }}
           />
           {suggestions.length > 0 && (
@@ -475,7 +495,7 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
           onInput={(e) => setCost((e.target as HTMLInputElement).value)}
           onKeyDown={(e) => { if ((e as KeyboardEvent).key === 'Enter') handleAdd(); }}
         />
-        <button type="button" data-action="add" disabled={selected === null} onClick={handleAdd}>Add</button>
+        <button type="button" data-action="add" disabled={selected === null} onClick={handleAdd}>{updateMode ? 'Update' : 'Add'}</button>
       </div>
     </div>
   );
