@@ -1,17 +1,30 @@
 ---
 import type { CardIdentity } from '@/data/schema';
+import { getRarityTier } from '@/data/rarity-tier';
+
 interface Props { card: CardIdentity }
 const { card } = Astro.props;
 const preferredPrint = card.prints.en ?? card.prints.ja ?? card.prints.ko ?? card.prints.zh!;
+const rarityTier = getRarityTier(card.filters.rarity);
 
 const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
 ---
-<a class="card-tile" href={`/pokemon-tcg/card/${card.id}`}>
+<a class="card-tile" href={`/pokemon-tcg/card/${card.id}`} data-rarity-tier={rarityTier} data-tilt-active="false">
   <div class="image-wrap">
     {preferredPrint.imageURL && (
       <img src={preferredPrint.imageURL} alt={card.defaultName} loading="lazy" onerror={ON_IMG_ERROR} />
     )}
     <div class="placeholder">{card.id}</div>
+    {rarityTier !== 'common' && (
+      <>
+        <div class="shimmer-band" aria-hidden="true" />
+        <div class="shimmer-glow" aria-hidden="true" />
+        <div class="shimmer-glare" aria-hidden="true" />
+      </>
+    )}
+    {rarityTier === 'ultra' && (
+      <div class="sparkle-slot" aria-hidden="true" />
+    )}
   </div>
   <div class="caption">
     <strong>{card.defaultName}</strong>
@@ -20,21 +33,47 @@ const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
 </a>
 
 <style>
+  /* CSS custom properties updated per-tile by the tilt script below.
+     Defaults are the at-rest state. */
   .card-tile {
     display: flex;
     flex-direction: column;
     text-decoration: none;
     color: inherit;
-    transition: transform 150ms ease;
+    transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    --tilt-rx: 0deg;
+    --tilt-ry: 0deg;
+    --mx: 50%;
+    --my: 50%;
   }
   .card-tile:hover { transform: translateY(-3px); }
-  .card-tile img { width: 100%; border-radius: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); display: block; }
 
-  /* On image load error, <img> removes itself; placeholder becomes :only-child
-     and reveals via CSS. The parchment gradient + dashed border + muted-tone
-     monospace ID makes a missing image blend with the site's palette instead
-     of showing a dead gray block. */
-  .image-wrap { position: relative; }
+  .image-wrap {
+    position: relative;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    /* aspect-ratio + min-height stay off this wrapper so the img still drives
+       height; we only wrap to capture 3D children. */
+  }
+
+  /* The image is the 3D-tilted element; the caption stays upright. */
+  .card-tile img {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    display: block;
+    transform: rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry));
+    transition: transform 400ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 300ms ease;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+  .card-tile[data-tilt-active='true'] img {
+    transition: transform 60ms linear, box-shadow 300ms ease;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  }
+
+  /* Placeholder for cards whose image fails to load — same parchment style
+     the rest of the site uses. Same :only-child reveal trick. */
   .placeholder {
     aspect-ratio: 2/3;
     background:
@@ -57,9 +96,182 @@ const ON_IMG_ERROR = 'this.onerror=null; this.remove();';
     letter-spacing: 1px;
     text-transform: uppercase;
   }
-  .placeholder { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.7rem; letter-spacing: 0.5px; }
+  .placeholder {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+  }
   .placeholder:only-child { display: flex; }
+
+  /* Shimmer overlays — positioned over the img, so they inherit its rounded
+     corners and follow the same tilt transform via the parent image-wrap. */
+  .shimmer-band,
+  .shimmer-glow,
+  .shimmer-glare {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    pointer-events: none;
+    transform: rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry));
+    transition: transform 400ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 250ms ease;
+    backface-visibility: hidden;
+  }
+  .card-tile[data-tilt-active='true'] .shimmer-band,
+  .card-tile[data-tilt-active='true'] .shimmer-glow,
+  .card-tile[data-tilt-active='true'] .shimmer-glare {
+    transition: transform 60ms linear, opacity 250ms ease;
+  }
+
+  /* Sweeping rainbow band — tied to the tilt angle so tilting the card
+     sweeps the shimmer across its face. */
+  .shimmer-band {
+    background: linear-gradient(
+      calc(115deg + var(--tilt-ry-num, 0) * 2deg),
+      transparent 20%,
+      rgba(255, 255, 255, 0.18) 40%,
+      rgba(255, 180, 255, 0.22) 50%,
+      rgba(180, 220, 255, 0.2) 55%,
+      transparent 75%
+    );
+    mix-blend-mode: screen;
+    opacity: 0.35;
+  }
+  .card-tile[data-tilt-active='true'] .shimmer-band { opacity: 0.85; }
+
+  /* Prismatic radial glow tethered to mouse position. */
+  .shimmer-glow {
+    background: radial-gradient(
+      circle at var(--mx) var(--my),
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 200, 255, 0.18) 15%,
+      rgba(150, 220, 255, 0.15) 30%,
+      transparent 55%
+    );
+    mix-blend-mode: color-dodge;
+    opacity: 0;
+  }
+  .card-tile[data-tilt-active='true'] .shimmer-glow { opacity: 1; }
+
+  /* Soft highlight at the cursor — subtle, overlay blended. */
+  .shimmer-glare {
+    background: radial-gradient(
+      circle at var(--mx) var(--my),
+      rgba(255, 255, 255, 0.28),
+      transparent 55%
+    );
+    mix-blend-mode: overlay;
+    opacity: 0;
+  }
+  .card-tile[data-tilt-active='true'] .shimmer-glare { opacity: 1; }
+
+  /* Only Ultra-tier cards show sparkles. The slot starts empty; the tilt
+     script lazy-populates it on first hover. */
+  .sparkle-slot {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+  .card-tile[data-tilt-active='true'] .sparkle-slot { opacity: 1; }
+
+  .sparkle-slot .sparkle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #ffd866;
+    box-shadow: 0 0 8px #ffd866;
+    animation: sparkle-twinkle 1.8s ease-in-out infinite;
+  }
+  @keyframes sparkle-twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50%      { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* Users who prefer reduced motion get a subtle brightness bump on hover
+     rather than the parallax tilt + animated sparkles. */
+  @media (prefers-reduced-motion: reduce) {
+    .card-tile img,
+    .shimmer-band,
+    .shimmer-glow,
+    .shimmer-glare,
+    .sparkle-slot,
+    .sparkle-slot .sparkle {
+      transition: none !important;
+      animation: none !important;
+      transform: none !important;
+    }
+    .card-tile:hover img { filter: brightness(1.08); }
+  }
 
   .caption { margin-top: 0.5rem; font-size: 0.9rem; }
   .caption span { display: block; color: #7a5e3a; font-size: 0.8rem; }
 </style>
+
+<script>
+  // Progressive-enhancement mouse-parallax tilt + holo shimmer for .card-tile.
+  // Uses a single delegated mousemove listener on the document so thousands
+  // of tiles cost nothing until one is hovered. Respects prefers-reduced-motion.
+  (() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    const MAX_RX = 14;  // degrees
+    const MAX_RY = 18;
+    const SPARKLE_COUNT = 10;
+
+    let hoveredTile: HTMLElement | null = null;
+
+    function resetTile(t: HTMLElement) {
+      t.style.setProperty('--tilt-rx', '0deg');
+      t.style.setProperty('--tilt-ry', '0deg');
+      t.style.setProperty('--tilt-ry-num', '0');
+      t.style.setProperty('--mx', '50%');
+      t.style.setProperty('--my', '50%');
+      t.dataset.tiltActive = 'false';
+    }
+
+    function ensureSparkles(tile: HTMLElement) {
+      if (tile.dataset.rarityTier !== 'ultra') return;
+      const slot = tile.querySelector('.sparkle-slot');
+      if (!slot || slot.childElementCount > 0) return;
+      for (let i = 0; i < SPARKLE_COUNT; i++) {
+        const s = document.createElement('span');
+        s.className = 'sparkle';
+        s.style.left = `${Math.random() * 90 + 5}%`;
+        s.style.top = `${Math.random() * 90 + 5}%`;
+        s.style.animationDelay = `${(Math.random() * 1.5).toFixed(2)}s`;
+        slot.appendChild(s);
+      }
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      const target = e.target as HTMLElement | null;
+      const tile = target?.closest?.('.card-tile') as HTMLElement | null;
+      if (tile !== hoveredTile) {
+        if (hoveredTile) resetTile(hoveredTile);
+        hoveredTile = tile;
+      }
+      if (!tile) return;
+      ensureSparkles(tile);
+      const r = tile.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      const y = (e.clientY - r.top) / r.height;
+      const rx = (0.5 - y) * MAX_RX;
+      const ry = (x - 0.5) * MAX_RY;
+      tile.style.setProperty('--tilt-rx', `${rx.toFixed(2)}deg`);
+      tile.style.setProperty('--tilt-ry', `${ry.toFixed(2)}deg`);
+      tile.style.setProperty('--tilt-ry-num', ry.toFixed(2));
+      tile.style.setProperty('--mx', `${(x * 100).toFixed(1)}%`);
+      tile.style.setProperty('--my', `${(y * 100).toFixed(1)}%`);
+      tile.dataset.tiltActive = 'true';
+    });
+
+    // Leaving the window: reset whatever tile we were on.
+    document.addEventListener('mouseleave', () => {
+      if (hoveredTile) resetTile(hoveredTile);
+      hoveredTile = null;
+    });
+  })();
+</script>

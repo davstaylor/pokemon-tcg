@@ -5,6 +5,8 @@ import Base from '@/layouts/Base.astro';
 import PrintGallery from '@/components/PrintGallery.astro';
 import PriceTile from '@/components/PriceTile.astro';
 import PortfolioAddButton from '@/components/PortfolioAddButton';
+import CardLightbox from '@/components/CardLightbox';
+import { getRarityTier } from '@/data/rarity-tier';
 import type { CardIdentity, Language } from '@/data/schema';
 import type { PriceFile, CardPriceRecord } from '@/data/price-schema';
 import type { SparklineDump, RangeDump, Snapshot, Range } from '@/data/history-schema';
@@ -77,6 +79,7 @@ function pickThumbUrl(c: CardIdentity): string {
   return '';
 }
 const pagefindThumb = pickThumbUrl(card);
+const rarityTier = getRarityTier(card.filters.rarity);
 ---
 <Base title={`${card.defaultName} — Pokémon TCG Catalog`}>
   <article data-pagefind-body>
@@ -86,6 +89,15 @@ const pagefindThumb = pickThumbUrl(card);
     <span style="display:none" data-pagefind-meta="cardId">{card.id}</span>
     <h1 data-pagefind-weight="10">{card.defaultName}</h1>
     <PrintGallery card={card} />
+    {pagefindThumb && (
+      <CardLightbox
+        client:load
+        imageUrl={pagefindThumb}
+        cardName={card.defaultName}
+        setName={card.filters.setName}
+        rarityTier={rarityTier}
+      />
+    )}
     {priceRecord !== null && priceRecord.sources.cardmarket && (
       <PriceTile
         record={priceRecord}
