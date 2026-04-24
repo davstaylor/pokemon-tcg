@@ -46,11 +46,11 @@ describe('entryCurrentEur', () => {
 });
 
 describe('computeSummary', () => {
-  it('returns all zeros on empty entries', () => {
+  it('returns all zeros on empty entries (pnlPct null — no paid)', () => {
     const s = computeSummary([], dump({}), rates, 'GBP');
     expect(s).toEqual({
       cards: 0, uniqueCards: 0, paidInDisplay: 0, valueInDisplay: 0,
-      pnlValue: 0, pnlPct: 0, unpriced: 0,
+      pnlValue: 0, pnlPct: null, unpriced: 0,
     });
   });
 
@@ -89,11 +89,11 @@ describe('computeSummary', () => {
     expect(s.valueInDisplay).toBeCloseTo(60.2, 1);
   });
 
-  it('pnlPct is 0 when paid is 0 (no divide-by-zero)', () => {
+  it('pnlPct is null when paid is 0 (division undefined, not zero)', () => {
     const entries = [entry({ cardId: 'a', qty: 1, costValue: 0, costCurrency: 'GBP' })];
     const d = dump({ a: [snap('a', '2026-04-22', 50)] });
     const s = computeSummary(entries, d, rates, 'GBP');
-    expect(s.pnlPct).toBe(0);
+    expect(s.pnlPct).toBe(null);
   });
 });
 

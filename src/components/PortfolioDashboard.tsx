@@ -18,7 +18,8 @@ function formatCurrencyValue(value: number, currency: SupportedCurrency, signed 
   return `${sign}${CURRENCY_GLYPH[currency]}${fmt.format(abs)}`;
 }
 
-function formatPct(decimal: number): string {
+function formatPct(decimal: number | null): string {
+  if (decimal === null) return '—%';
   const pct = (decimal * 100).toFixed(1);
   const sign = decimal >= 0 ? '+' : '−';
   return `${sign}${pct.replace('-', '')}%`;
@@ -524,7 +525,7 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
 
   const renderFooter = () => (
     <div class="portfolio-footer">
-      <span class="count">{file.entries.length} {file.entries.length === 1 ? 'card' : 'cards'}</span>
+      <span class="count">{file.entries.length} {file.entries.length === 1 ? 'row' : 'rows'}</span>
       <div class="actions">
         <button type="button" onClick={handleExport} disabled={file.entries.length === 0}>Export JSON</button>
         <button type="button" data-action="import" onClick={() => setImportOpen(true)}>Import JSON</button>
@@ -611,14 +612,18 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
 
         <div class="portfolio-trend">
           <div class="trend-lbl">30-day value ({currency})</div>
-          <svg viewBox="0 0 100 48" preserveAspectRatio="none">
-            <polyline
-              points={buildSparklinePoints(trend)}
-              fill="none"
-              stroke={trend.length > 1 && trend[trend.length - 1].valueInDisplay >= trend[0].valueInDisplay ? '#2d7d47' : '#b23a3a'}
-              stroke-width="1.5"
-            />
-          </svg>
+          {trend.length >= 2 ? (
+            <svg viewBox="0 0 100 48" preserveAspectRatio="none">
+              <polyline
+                points={buildSparklinePoints(trend)}
+                fill="none"
+                stroke={trend[trend.length - 1].valueInDisplay >= trend[0].valueInDisplay ? '#2d7d47' : '#b23a3a'}
+                stroke-width="1.5"
+              />
+            </svg>
+          ) : (
+            <p class="trend-empty">Not enough history yet — check back tomorrow.</p>
+          )}
         </div>
       </div>
 
@@ -746,6 +751,14 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
           background: linear-gradient(180deg, #fffdf6, #f5efe2);
           border-radius: 4px;
           border: 1px solid #ebdfc2;
+        }
+        .portfolio-trend .trend-empty {
+          color: var(--muted);
+          font-style: italic;
+          font-size: 0.9rem;
+          margin: auto 0;
+          text-align: center;
+          padding: 2rem 0;
         }
         ${ADD_FORM_STYLES}
         ${TABLE_STYLES}

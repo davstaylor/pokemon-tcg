@@ -9,7 +9,7 @@ export interface PortfolioSummary {
   paidInDisplay: number;
   valueInDisplay: number;
   pnlValue: number;          // valueInDisplay − paidInDisplay
-  pnlPct: number;            // decimal, 0 when paid is 0
+  pnlPct: number | null;     // null when paidInDisplay === 0 (division undefined)
   unpriced: number;          // cards whose cardId has no history
 }
 
@@ -64,7 +64,7 @@ export function computeSummary(
     paidInDisplay,
     valueInDisplay,
     pnlValue: valueInDisplay - paidInDisplay,
-    pnlPct: paidInDisplay > 0 ? (valueInDisplay - paidInDisplay) / paidInDisplay : 0,
+    pnlPct: paidInDisplay > 0 ? (valueInDisplay - paidInDisplay) / paidInDisplay : null,
     unpriced,
   };
 }
