@@ -3,8 +3,8 @@ import { useState, useEffect } from 'preact/hooks';
 type PagefindResult = {
   id: string;
   url: string;
-  excerpt: string;
-  meta: { title?: string; subtitle?: string };
+  excerpt?: string;
+  meta: { title?: string; subtitle?: string; thumb?: string; cardId?: string };
 };
 
 type Pagefind = {

@@ -69,3 +69,30 @@ test('trend chart renders an SVG polyline for a non-empty portfolio', async ({ p
   expect(points).toBeTruthy();
   expect(points!.split(' ').length).toBeGreaterThanOrEqual(2);
 });
+
+test('autocomplete adds a card to the portfolio', async ({ page }) => {
+  await page.addInitScript(() => {
+    // Pin display currency for locale determinism.
+    localStorage.setItem('pokemon-tcg-currency', 'GBP');
+  });
+  await page.goto('portfolio/');
+  // Empty state: the form should still render even without entries.
+  const search = page.locator('.portfolio-add input[type=search]');
+  await expect(search).toBeVisible();
+  await search.fill('Charizard');
+
+  // Pick the first dropdown result (base1-4).
+  const firstResult = page.locator('.portfolio-add .suggestions li').first();
+  await expect(firstResult).toBeVisible();
+  await firstResult.click();
+
+  // Qty auto-focused — fill qty + cost and click Add.
+  await page.locator('.portfolio-add input[name=qty]').fill('2');
+  await page.locator('.portfolio-add input[name=cost]').fill('150');
+  await page.locator('.portfolio-add button[data-action=add]').click();
+
+  // Summary updates.
+  const stats = page.locator('.portfolio-stats');
+  await expect(stats.locator('[data-stat=cards]')).toHaveText('2');
+  await expect(stats.locator('[data-stat=paid]')).toContainText(/£\s*150/);
+});

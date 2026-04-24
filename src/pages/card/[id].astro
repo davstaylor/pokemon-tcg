@@ -78,7 +78,11 @@ function pickThumbUrl(c: CardIdentity): string {
 const pagefindThumb = pickThumbUrl(card);
 ---
 <Base title={`${card.defaultName} — Pokémon TCG Catalog`}>
-  <article data-pagefind-body data-pagefind-meta={`title:${card.defaultName}, subtitle:${card.filters.setName}, thumb:${pagefindThumb}, cardId:${card.id}`}>
+  <article data-pagefind-body>
+    <span style="display:none" data-pagefind-meta="title">{card.defaultName}</span>
+    <span style="display:none" data-pagefind-meta="subtitle">{card.filters.setName}</span>
+    <span style="display:none" data-pagefind-meta="thumb">{pagefindThumb}</span>
+    <span style="display:none" data-pagefind-meta="cardId">{card.id}</span>
     <h1 data-pagefind-weight="10">{card.defaultName}</h1>
     <PrintGallery card={card} />
     {priceRecord !== null && priceRecord.sources.cardmarket && (

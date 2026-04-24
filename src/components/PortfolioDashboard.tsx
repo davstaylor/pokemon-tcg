@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { loadPortfolioSafe } from '@/data/portfolio-storage';
+import { loadPortfolioSafe, addEntry, savePortfolio } from '@/data/portfolio-storage';
 import { fetchSparklineWithCache } from '@/data/sparkline-fetch';
 import { type ExchangeRates, type SupportedCurrency, CURRENCY_GLYPH, CURRENCY_DECIMALS } from '@/data/currency-schema';
 import { computeSummary, computeTrendSeries, type PortfolioSummary, type TrendPoint } from '@/data/portfolio-aggregate';
@@ -29,6 +29,81 @@ function formatPct(decimal: number): string {
   const sign = decimal >= 0 ? '+' : '−';
   return `${sign}${pct.replace('-', '')}%`;
 }
+
+type PagefindResult = {
+  id: string;
+  url: string;
+  excerpt?: string;
+  meta: { title?: string; subtitle?: string; thumb?: string; cardId?: string };
+};
+type Pagefind = {
+  search: (q: string) => Promise<{ results: Array<{ id: string; data: () => Promise<PagefindResult> }> }>;
+};
+
+const ADD_FORM_STYLES = `
+  .portfolio-add {
+    background: var(--paper);
+    border: 1px solid #d9c9a3;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+  }
+  .portfolio-add .add-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 110px auto;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .portfolio-add input, .portfolio-add button {
+    padding: 0.45rem 0.75rem;
+    border: 1px solid #d9c9a3;
+    border-radius: 6px;
+    background: #fffdf6;
+    font-size: 0.9rem;
+  }
+  .portfolio-add button {
+    background: var(--accent); color: white; border-color: var(--accent);
+    font-weight: 600; cursor: pointer;
+  }
+  .portfolio-add button:disabled {
+    background: #d9c9a3; border-color: #d9c9a3; cursor: not-allowed;
+  }
+  .portfolio-add .search-wrap { position: relative; }
+  .portfolio-add .suggestions {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    list-style: none;
+    padding: 0.25rem 0;
+    margin: 0;
+    background: #fffdf6;
+    border: 1px solid #d9c9a3;
+    border-radius: 6px;
+    box-shadow: 0 6px 16px rgba(59, 42, 26, 0.12);
+    z-index: 10;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .portfolio-add .suggestions li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.6rem;
+    cursor: pointer;
+  }
+  .portfolio-add .suggestions li:hover { background: #f5efe2; }
+  .portfolio-add .suggestions img {
+    width: 24px; height: 33px; object-fit: cover; border-radius: 2px;
+    background: linear-gradient(135deg, #d9c9a3, #c8b78f); flex: 0 0 auto;
+  }
+  .portfolio-add .suggestions .nm strong { display: block; font-size: 0.85rem; }
+  .portfolio-add .suggestions .nm small { display: block; color: var(--muted); font-size: 0.75rem; }
+  @media (max-width: 560px) {
+    .portfolio-add .add-row { grid-template-columns: 1fr; }
+  }
+`;
 
 function buildSparklinePoints(points: TrendPoint[]): string {
   if (points.length < 2) return '';
@@ -67,13 +142,148 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
     return () => window.removeEventListener('currencychange', onCurrencyChange);
   }, []);
 
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<PagefindResult[]>([]);
+  const [selected, setSelected] = useState<{ cardId: string; cardName: string; thumb: string } | null>(null);
+  const [qty, setQty] = useState('1');
+  const [cost, setCost] = useState('');
+  const [pagefind, setPagefind] = useState<Pagefind | null>(null);
+
+  // Load pagefind once.
+  useEffect(() => {
+    if (window.pagefind) {
+      setPagefind(window.pagefind);
+      return;
+    }
+    (async () => {
+      const pagefindUrl = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/pagefind/pagefind.js`;
+      try {
+        window.pagefind = (await import(/* @vite-ignore */ pagefindUrl)) as unknown as Pagefind;
+        setPagefind(window.pagefind!);
+      } catch {
+        // Pagefind unavailable — autocomplete won't work but rest of page does.
+      }
+    })();
+  }, []);
+
+  // Run search on query change.
+  useEffect(() => {
+    if (!pagefind || query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const raw = await pagefind.search(query);
+      if (cancelled) return;
+      const data = await Promise.all(raw.results.slice(0, 10).map((r) => r.data()));
+      if (cancelled) return;
+      setSuggestions(data);
+    })();
+    return () => { cancelled = true; };
+  }, [query, pagefind]);
+
+  function selectSuggestion(r: PagefindResult) {
+    const cardId = r.meta.cardId ?? '';
+    if (!cardId) return;
+    setSelected({
+      cardId,
+      cardName: r.meta.title ?? cardId,
+      thumb: r.meta.thumb ?? '',
+    });
+    setQuery(r.meta.title ?? '');
+    setSuggestions([]);
+    // Focus qty — deferred so the render commits first.
+    requestAnimationFrame(() => {
+      (document.querySelector('.portfolio-add input[name=qty]') as HTMLInputElement | null)?.focus();
+    });
+  }
+
+  function handleAdd() {
+    if (selected === null) return;
+    const qtyNum = Number(qty);
+    const costNum = Number(cost);
+    if (!Number.isFinite(qtyNum) || qtyNum < 1) return;
+    if (!Number.isFinite(costNum) || costNum < 0) return;
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const { file: current } = loadPortfolioSafe();
+    const next = addEntry(
+      current,
+      { cardId: selected.cardId, qty: qtyNum, costValue: costNum, costCurrency: currency },
+      rates,
+      todayIso,
+    );
+    savePortfolio(next);
+    setFile(next);
+    // Reset form.
+    setSelected(null);
+    setQuery('');
+    setQty('1');
+    setCost('');
+  }
+
+  const renderAddForm = () => (
+    <div class="portfolio-add">
+      <div class="add-row">
+        <div class="search-wrap">
+          <input
+            type="search"
+            placeholder="Find a card…"
+            value={query}
+            onInput={(e) => {
+              setQuery((e.target as HTMLInputElement).value);
+              if (selected) setSelected(null);  // user is typing again
+            }}
+          />
+          {suggestions.length > 0 && (
+            <ul class="suggestions">
+              {suggestions.map((r) => (
+                <li key={r.id} onClick={() => selectSuggestion(r)}>
+                  {r.meta.thumb && <img src={r.meta.thumb} alt="" loading="lazy" />}
+                  <span class="nm">
+                    <strong>{r.meta.title ?? r.url}</strong>
+                    {r.meta.subtitle && <small>{r.meta.subtitle}</small>}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <input
+          name="qty"
+          type="number"
+          min="1"
+          placeholder="Qty"
+          value={qty}
+          disabled={selected === null}
+          onInput={(e) => setQty((e.target as HTMLInputElement).value)}
+        />
+        <input
+          name="cost"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder={`Cost ${CURRENCY_GLYPH[currency]}`}
+          value={cost}
+          disabled={selected === null}
+          onInput={(e) => setCost((e.target as HTMLInputElement).value)}
+          onKeyDown={(e) => { if ((e as KeyboardEvent).key === 'Enter') handleAdd(); }}
+        />
+        <button type="button" data-action="add" disabled={selected === null} onClick={handleAdd}>Add</button>
+      </div>
+    </div>
+  );
+
   if (file === null) return null;
 
   if (file.entries.length === 0) {
     return (
-      <div class="portfolio-empty">
-        <p>You haven't added any cards yet.</p>
-        <p class="sub">Start by searching above, or paste an exported collection.</p>
+      <div>
+        {renderAddForm()}
+        <div class="portfolio-empty">
+          <p>You haven't added any cards yet.</p>
+          <p class="sub">Start by searching above, or paste an exported collection.</p>
+        </div>
         <style>{`
           .portfolio-empty {
             background: var(--paper);
@@ -85,6 +295,7 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
           }
           .portfolio-empty p { margin: 0.25rem 0; }
           .portfolio-empty .sub { color: var(--muted); font-size: 0.9rem; }
+          ${ADD_FORM_STYLES}
         `}</style>
       </div>
     );
@@ -132,6 +343,8 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
         </div>
       </div>
 
+      {renderAddForm()}
+
       <style>{`
         .portfolio-dashboard {
           display: grid;
@@ -178,6 +391,7 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
           border-radius: 4px;
           border: 1px solid #ebdfc2;
         }
+        ${ADD_FORM_STYLES}
       `}</style>
     </div>
   );
