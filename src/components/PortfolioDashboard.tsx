@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'preact/hooks';
-import { loadPortfolioSafe, addEntry, savePortfolio } from '@/data/portfolio-storage';
+import { loadPortfolioSafe, addEntry, savePortfolio, updateEntry, removeEntry } from '@/data/portfolio-storage';
 import { fetchSparklineWithCache } from '@/data/sparkline-fetch';
 import { type ExchangeRates, type SupportedCurrency, CURRENCY_GLYPH, CURRENCY_DECIMALS } from '@/data/currency-schema';
+import { convertBetween } from '@/data/currency';
 import { computeSummary, computeTrendSeries, type PortfolioSummary, type TrendPoint } from '@/data/portfolio-aggregate';
 import type { PortfolioFile } from '@/data/portfolio-schema';
 import type { SparklineDump } from '@/data/history-schema';
@@ -105,6 +106,52 @@ const ADD_FORM_STYLES = `
   }
 `;
 
+const TABLE_STYLES = `
+  .portfolio-table-wrap {
+    background: var(--paper);
+    border: 1px solid #d9c9a3;
+    border-radius: 10px;
+    padding: 0;
+    overflow-x: auto;
+  }
+  .portfolio-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .portfolio-table th {
+    background: #ebdfc2;
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .portfolio-table th.r, .portfolio-table td.r { text-align: right; }
+  .portfolio-table td {
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid #ebdfc2;
+    vertical-align: middle;
+  }
+  .portfolio-table tr:last-child td { border-bottom: 0; }
+  .portfolio-table .th-cell { padding: 0.3rem 0.4rem 0.3rem 0.6rem; }
+  .portfolio-table .th-img {
+    width: 24px; height: 33px;
+    background: linear-gradient(135deg, #d9c9a3, #c8b78f);
+    border-radius: 3px;
+  }
+  .portfolio-table a.card-link { color: inherit; text-decoration: none; font-weight: 600; }
+  .portfolio-table a.card-link:hover { text-decoration: underline; }
+  .portfolio-table input[name=qty] { width: 48px; }
+  .portfolio-table input[name=cost] { width: 72px; }
+  .portfolio-table input { padding: 0.2rem 0.3rem; border: 1px solid #d9c9a3; border-radius: 4px; background: #fffdf6; font-size: 0.85rem; text-align: right; font-variant-numeric: tabular-nums; }
+  .portfolio-table .cost-ccy { color: var(--muted); font-size: 0.75rem; margin-left: 2px; }
+  .portfolio-table .r { font-variant-numeric: tabular-nums; }
+  .portfolio-table td.up { color: #2d7d47; font-weight: 600; }
+  .portfolio-table td.dn { color: #b23a3a; font-weight: 600; }
+  .portfolio-table button[data-action=remove] {
+    background: transparent; border: 0; color: #b23a3a; font-size: 1.1rem;
+    cursor: pointer; padding: 0 0.4rem;
+  }
+`;
+
 function buildSparklinePoints(points: TrendPoint[]): string {
   if (points.length < 2) return '';
   const values = points.map((p) => p.valueInDisplay);
@@ -118,6 +165,16 @@ function buildSparklinePoints(points: TrendPoint[]): string {
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     })
     .join(' ');
+}
+
+function rowCurrentValueInDisplay(
+  qty: number,
+  curEur: number | null,
+  rates: ExchangeRates,
+  display: SupportedCurrency,
+): number | null {
+  if (curEur === null) return null;
+  return qty * (display === 'EUR' ? curEur : curEur * rates.rates[display]);
 }
 
 export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) {
@@ -220,6 +277,31 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
     setQuery('');
     setQty('1');
     setCost('');
+  }
+
+  function handleQtyChange(cardId: string, raw: string) {
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n < 1) return;
+    const { file: current } = loadPortfolioSafe();
+    const next = updateEntry(current, cardId, { qty: n });
+    savePortfolio(next);
+    setFile(next);
+  }
+
+  function handleCostChange(cardId: string, raw: string) {
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n < 0) return;
+    const { file: current } = loadPortfolioSafe();
+    const next = updateEntry(current, cardId, { costValue: n });
+    savePortfolio(next);
+    setFile(next);
+  }
+
+  function handleRemove(cardId: string) {
+    const { file: current } = loadPortfolioSafe();
+    const next = removeEntry(current, cardId);
+    savePortfolio(next);
+    setFile(next);
   }
 
   const renderAddForm = () => (
@@ -345,6 +427,67 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
 
       {renderAddForm()}
 
+      <div class="portfolio-table-wrap">
+        <table class="portfolio-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Card</th>
+              <th class="r">Qty</th>
+              <th class="r">Cost</th>
+              <th class="r">Value</th>
+              <th class="r">P&amp;L</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {file.entries.map((e) => {
+              const curEur = dump ? dump.records[e.cardId]?.slice(-1)[0]?.trend ?? null : null;
+              const valueDisplay = rowCurrentValueInDisplay(e.qty, curEur, rates, currency);
+              const costInDisplay = convertBetween(e.costValue, e.costCurrency, currency, rates);
+              const pnlValue = valueDisplay !== null ? valueDisplay - costInDisplay : null;
+              return (
+                <tr key={e.cardId}>
+                  <td class="th-cell">
+                    <div class="th-img" />
+                  </td>
+                  <td>
+                    <a href={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/card/${e.cardId}/`} class="card-link">{e.cardId}</a>
+                  </td>
+                  <td class="r">
+                    <input
+                      name="qty"
+                      type="number"
+                      min="1"
+                      value={String(e.qty)}
+                      onBlur={(ev) => handleQtyChange(e.cardId, (ev.target as HTMLInputElement).value)}
+                      onKeyDown={(ev) => { if ((ev as KeyboardEvent).key === 'Enter') (ev.target as HTMLInputElement).blur(); }}
+                    />
+                  </td>
+                  <td class="r">
+                    <input
+                      name="cost"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={String(e.costValue)}
+                      onBlur={(ev) => handleCostChange(e.cardId, (ev.target as HTMLInputElement).value)}
+                      onKeyDown={(ev) => { if ((ev as KeyboardEvent).key === 'Enter') (ev.target as HTMLInputElement).blur(); }}
+                    />
+                    <span class="cost-ccy">{CURRENCY_GLYPH[e.costCurrency]}</span>
+                  </td>
+                  <td class="r">{valueDisplay === null ? '—' : formatCurrencyValue(valueDisplay, currency)}</td>
+                  <td class={`r ${pnlValue !== null && pnlValue >= 0 ? 'up' : 'dn'}`}>{pnlValue === null ? '—' : formatCurrencyValue(pnlValue, currency, true)}</td>
+                  <td>
+                    <button type="button" data-action="remove" onClick={() => handleRemove(e.cardId)} aria-label="Remove">×</button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
       <style>{`
         .portfolio-dashboard {
           display: grid;
@@ -392,6 +535,7 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
           border: 1px solid #ebdfc2;
         }
         ${ADD_FORM_STYLES}
+        ${TABLE_STYLES}
       `}</style>
     </div>
   );

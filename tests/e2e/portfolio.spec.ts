@@ -96,3 +96,28 @@ test('autocomplete adds a card to the portfolio', async ({ page }) => {
   await expect(stats.locator('[data-stat=cards]')).toHaveText('2');
   await expect(stats.locator('[data-stat=paid]')).toContainText(/£\s*150/);
 });
+
+test('holdings table supports inline edit + remove', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('pokemon-tcg:portfolio', JSON.stringify({
+      version: 1,
+      entries: [{ cardId: 'base1-4', qty: 1, costValue: 100, costCurrency: 'GBP', addedAt: '2026-04-20' }],
+    }));
+    // Pin the display currency for locale determinism.
+    localStorage.setItem('pokemon-tcg-currency', 'GBP');
+  });
+  await page.goto('portfolio/');
+  const row = page.locator('.portfolio-table tbody tr').first();
+  await expect(row).toBeVisible();
+  await expect(row).toContainText('base1-4');  // card link text shows card id (no card-name lookup on portfolio page)
+
+  // Edit qty: 1 → 3.
+  const qtyInput = row.locator('input[name=qty]');
+  await qtyInput.fill('3');
+  await qtyInput.blur();
+  await expect(page.locator('.portfolio-stats [data-stat=cards]')).toHaveText('3');
+
+  // Remove the row.
+  await row.locator('button[data-action=remove]').click();
+  await expect(page.locator('.portfolio-empty')).toBeVisible();
+});
