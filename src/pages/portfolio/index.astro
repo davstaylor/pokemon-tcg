@@ -1,16 +1,27 @@
 ---
+import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import Base from '@/layouts/Base.astro';
 import PortfolioDashboard from '@/components/PortfolioDashboard';
+import { ExchangeRatesSchema, type ExchangeRates } from '@/data/currency-schema';
 
 const title = 'My portfolio — Pokémon TCG Catalog';
 const description = 'Your personal Pokémon TCG collection — total value, P&L, and a 30-day value trend. Stored in your browser.';
+
+const ratesPath = resolve(process.cwd(), 'data', 'exchange-rates.json');
+const fallbackRates: ExchangeRates = {
+  base: 'EUR', date: '1970-01-01', rates: { USD: 1, GBP: 1, JPY: 1 },
+};
+const rates: ExchangeRates = existsSync(ratesPath)
+  ? ExchangeRatesSchema.parse(JSON.parse(readFileSync(ratesPath, 'utf8')))
+  : fallbackRates;
 ---
 <Base title={title} description={description} noindex={true}>
   <header class="portfolio-header">
     <h1>My portfolio</h1>
     <p class="sub">Track what you own and what it's worth now.</p>
   </header>
-  <PortfolioDashboard client:load />
+  <PortfolioDashboard client:load rates={rates} />
 </Base>
 
 <style>
