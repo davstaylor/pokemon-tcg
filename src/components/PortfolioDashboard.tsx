@@ -4,7 +4,7 @@ import { fetchSparklineWithCache } from '@/data/sparkline-fetch';
 import { type ExchangeRates, type SupportedCurrency, CURRENCY_GLYPH, CURRENCY_DECIMALS } from '@/data/currency-schema';
 import { convertBetween } from '@/data/currency';
 import { computeSummary, computeTrendSeries, type PortfolioSummary, type TrendPoint } from '@/data/portfolio-aggregate';
-import type { PortfolioFile } from '@/data/portfolio-schema';
+import { PortfolioFileSchema, type PortfolioFile } from '@/data/portfolio-schema';
 import type { SparklineDump } from '@/data/history-schema';
 
 const CURRENCY_STORAGE_KEY = 'pokemon-tcg-currency';
@@ -152,6 +152,77 @@ const TABLE_STYLES = `
   }
 `;
 
+const FOOTER_STYLES = `
+  .portfolio-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .portfolio-footer .actions button {
+    background: transparent;
+    border: 1px solid #d9c9a3;
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    cursor: pointer;
+    margin-left: 0.4rem;
+  }
+  .portfolio-footer .actions button:hover { color: var(--ink); border-color: var(--accent); }
+  .portfolio-footer .actions button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .portfolio-import-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(59, 42, 26, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2000;
+  }
+  .portfolio-import-modal .modal-body {
+    background: var(--paper);
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: min(500px, 95vw);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .portfolio-import-modal h3 { margin: 0 0 0.5rem; }
+  .portfolio-import-modal .sub { color: var(--muted); font-size: 0.85rem; margin: 0 0 0.75rem; }
+  .portfolio-import-modal textarea {
+    width: 100%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.8rem;
+    border: 1px solid #d9c9a3;
+    border-radius: 6px;
+    padding: 0.5rem;
+    background: #fffdf6;
+    box-sizing: border-box;
+  }
+  .portfolio-import-modal .err {
+    color: #b23a3a; font-size: 0.85rem; margin: 0.5rem 0 0;
+  }
+  .portfolio-import-modal .modal-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .portfolio-import-modal .modal-actions button {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid #d9c9a3;
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .portfolio-import-modal .modal-actions button[data-action=replace] {
+    background: var(--accent); color: white; border-color: var(--accent);
+  }
+`;
+
 function buildSparklinePoints(points: TrendPoint[]): string {
   if (points.length < 2) return '';
   const values = points.map((p) => p.valueInDisplay);
@@ -205,6 +276,10 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
   const [qty, setQty] = useState('1');
   const [cost, setCost] = useState('');
   const [pagefind, setPagefind] = useState<Pagefind | null>(null);
+
+  const [importOpen, setImportOpen] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importError, setImportError] = useState<string | null>(null);
 
   // Load pagefind once.
   useEffect(() => {
@@ -304,6 +379,41 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
     setFile(next);
   }
 
+  function handleExport() {
+    const { file: current } = loadPortfolioSafe();
+    const json = JSON.stringify(current, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const today = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pokemon-tcg-portfolio-${today}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function handleImportReplace() {
+    setImportError(null);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(importText);
+    } catch (e) {
+      setImportError(`Invalid JSON: ${(e as Error).message}`);
+      return;
+    }
+    const result = PortfolioFileSchema.safeParse(parsed);
+    if (!result.success) {
+      setImportError(`Schema error: ${result.error.issues[0]?.message ?? 'invalid shape'}`);
+      return;
+    }
+    savePortfolio(result.data);
+    setFile(result.data);
+    setImportOpen(false);
+    setImportText('');
+  }
+
   const renderAddForm = () => (
     <div class="portfolio-add">
       <div class="add-row">
@@ -358,6 +468,36 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
 
   if (file === null) return null;
 
+  const renderFooter = () => (
+    <div class="portfolio-footer">
+      <span class="count">{file.entries.length} {file.entries.length === 1 ? 'card' : 'cards'}</span>
+      <div class="actions">
+        <button type="button" onClick={handleExport} disabled={file.entries.length === 0}>Export JSON</button>
+        <button type="button" data-action="import" onClick={() => setImportOpen(true)}>Import JSON</button>
+      </div>
+    </div>
+  );
+
+  const renderImportModal = () => importOpen && (
+    <div class="portfolio-import-modal" role="dialog" aria-modal="true">
+      <div class="modal-body">
+        <h3>Import portfolio JSON</h3>
+        <p class="sub">This will <strong>replace</strong> your current portfolio. Export first if you want a backup.</p>
+        <textarea
+          rows={10}
+          value={importText}
+          onInput={(e) => setImportText((e.target as HTMLTextAreaElement).value)}
+          placeholder='{"version":1,"entries":[…]}'
+        />
+        {importError !== null && <p class="err">{importError}</p>}
+        <div class="modal-actions">
+          <button type="button" onClick={() => { setImportOpen(false); setImportError(null); setImportText(''); }}>Cancel</button>
+          <button type="button" data-action="replace" onClick={handleImportReplace}>Replace portfolio</button>
+        </div>
+      </div>
+    </div>
+  );
+
   if (file.entries.length === 0) {
     return (
       <div>
@@ -366,6 +506,8 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
           <p>You haven't added any cards yet.</p>
           <p class="sub">Start by searching above, or paste an exported collection.</p>
         </div>
+        {renderFooter()}
+        {renderImportModal()}
         <style>{`
           .portfolio-empty {
             background: var(--paper);
@@ -378,6 +520,7 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
           .portfolio-empty p { margin: 0.25rem 0; }
           .portfolio-empty .sub { color: var(--muted); font-size: 0.9rem; }
           ${ADD_FORM_STYLES}
+          ${FOOTER_STYLES}
         `}</style>
       </div>
     );
@@ -488,6 +631,8 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
         </table>
       </div>
 
+      {renderFooter()}
+      {renderImportModal()}
       <style>{`
         .portfolio-dashboard {
           display: grid;
@@ -536,6 +681,7 @@ export default function PortfolioDashboard({ rates }: { rates: ExchangeRates }) 
         }
         ${ADD_FORM_STYLES}
         ${TABLE_STYLES}
+        ${FOOTER_STYLES}
       `}</style>
     </div>
   );

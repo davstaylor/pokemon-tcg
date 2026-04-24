@@ -121,3 +121,23 @@ test('holdings table supports inline edit + remove', async ({ page }) => {
   await row.locator('button[data-action=remove]').click();
   await expect(page.locator('.portfolio-empty')).toBeVisible();
 });
+
+test('import JSON replaces the portfolio', async ({ page }) => {
+  await page.addInitScript(() => {
+    // Pin display currency for locale determinism.
+    localStorage.setItem('pokemon-tcg-currency', 'GBP');
+  });
+  await page.goto('portfolio/');
+  await page.locator('button[data-action=import]').click();
+  const payload = JSON.stringify({
+    version: 1,
+    entries: [
+      { cardId: 'base1-4', qty: 1, costValue: 200, costCurrency: 'GBP', addedAt: '2026-04-22' },
+      { cardId: 'base1-2', qty: 2, costValue: 40, costCurrency: 'GBP', addedAt: '2026-04-22' },
+    ],
+  });
+  await page.locator('.portfolio-import-modal textarea').fill(payload);
+  await page.locator('.portfolio-import-modal button[data-action=replace]').click();
+  await expect(page.locator('.portfolio-table tbody tr')).toHaveCount(2);
+  await expect(page.locator('.portfolio-stats [data-stat=cards]')).toHaveText('3');  // 1 + 2
+});
