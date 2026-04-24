@@ -5,8 +5,8 @@ import Disclaimer from '@/components/Disclaimer.astro';
 import CurrencySelect from '@/components/CurrencySelect';
 import { ExchangeRatesSchema, type ExchangeRates } from '@/data/currency-schema';
 
-interface Props { title: string; description?: string; ogImage?: string }
-const { title, description = 'Pokémon TCG multilingual catalog', ogImage } = Astro.props;
+interface Props { title: string; description?: string; ogImage?: string; noindex?: boolean }
+const { title, description = 'Pokémon TCG multilingual catalog', ogImage, noindex = false } = Astro.props;
 
 // Canonical + OG URL — Astro.url is absolute when `site` is configured.
 const canonicalUrl = Astro.url.href;
@@ -28,6 +28,7 @@ const rates: ExchangeRates = existsSync(ratesPath)
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
