@@ -52,3 +52,20 @@ test('summary dashboard shows 4 stats when portfolio has entries', async ({ page
   await expect(stat.locator('[data-stat="value"]')).toContainText(/£\s*\d+/);
   await expect(stat.locator('[data-stat="pnl"]')).toContainText(/[+−]£\s*\d+/);
 });
+
+test('trend chart renders an SVG polyline for a non-empty portfolio', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('pokemon-tcg:portfolio', JSON.stringify({
+      version: 1,
+      entries: [{ cardId: 'base1-4', qty: 1, costValue: 300, costCurrency: 'GBP', addedAt: '2026-04-20' }],
+    }));
+    // Seed display currency for locale determinism (CurrencySelect would otherwise infer USD on en-US runners)
+    localStorage.setItem('pokemon-tcg-currency', 'GBP');
+  });
+  await page.goto('portfolio/');
+  const chart = page.locator('.portfolio-trend svg polyline');
+  await expect(chart).toBeVisible();
+  const points = await chart.getAttribute('points');
+  expect(points).toBeTruthy();
+  expect(points!.split(' ').length).toBeGreaterThanOrEqual(2);
+});
