@@ -66,10 +66,38 @@ test('card page "Add to my cards" button adds to portfolio', async ({ page }) =>
   await page.locator('.portfolio-add-btn input[name=cost]').fill('100');
   await page.locator('.portfolio-add-btn button[data-action=save]').click();
 
-  // Button transforms to "Owned" state.
-  await expect(page.locator('.portfolio-add-btn')).toContainText(/Owned/);
+  // Transient "✓ Added (×1) — Undo" shows for 5 seconds after Save.
+  await expect(page.locator('.portfolio-add-btn')).toContainText(/Added/);
+  await expect(page.locator('.portfolio-add-btn [data-action=undo]')).toBeVisible();
 
-  // Reload — state persists via localStorage (addInitScript no longer clears it).
+  // Reload — transient is cleared (it's in-memory only); button settles into
+  // the persistent "Owned (×1) — Update" state via localStorage hydration.
   await page.reload();
   await expect(page.locator('.portfolio-add-btn')).toContainText(/Owned/);
+});
+
+test('card page "Undo" reverts a fresh add', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('pokemon-tcg-currency', 'GBP');
+  });
+  await page.goto('card/base1-4');
+  await page.evaluate(() => localStorage.removeItem('pokemon-tcg:portfolio'));
+  await page.reload();
+
+  // Fresh add.
+  await page.locator('.portfolio-add-btn button').click();
+  await page.locator('.portfolio-add-btn input[name=qty]').fill('1');
+  await page.locator('.portfolio-add-btn input[name=cost]').fill('100');
+  await page.locator('.portfolio-add-btn button[data-action=save]').click();
+
+  // Transient state appears.
+  await expect(page.locator('.portfolio-add-btn')).toContainText(/Added/);
+
+  // Click Undo — should remove the entry and return to "+ Add to my cards".
+  await page.locator('.portfolio-add-btn [data-action=undo]').click();
+  await expect(page.locator('.portfolio-add-btn')).toContainText(/Add to my cards/);
+
+  // Verify localStorage was actually cleared — reload and confirm.
+  await page.reload();
+  await expect(page.locator('.portfolio-add-btn')).toContainText(/Add to my cards/);
 });

@@ -12,11 +12,13 @@ interface Props {
 }
 
 export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
-  const [mode, setMode] = useState<'idle' | 'editing'>('idle');
+  const [mode, setMode] = useState<'idle' | 'editing' | 'justSaved'>('idle');
   const [existing, setExisting] = useState<PortfolioEntry | null>(null);
   const [qty, setQty] = useState('1');
   const [cost, setCost] = useState('');
   const [currency, setCurrency] = useState<SupportedCurrency>('GBP');
+  const [priorEntry, setPriorEntry] = useState<PortfolioEntry | null>(null);
+  const [justSavedKind, setJustSavedKind] = useState<'added' | 'updated'>('added');
 
   useEffect(() => {
     setCurrency(detectDisplayCurrency());
@@ -37,6 +39,15 @@ export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
     return () => window.removeEventListener('currencychange', onCurrency);
   }, [cardId]);
 
+  useEffect(() => {
+    if (mode !== 'justSaved') return;
+    const t = window.setTimeout(() => {
+      setMode('idle');
+      setPriorEntry(null);
+    }, 5000);
+    return () => window.clearTimeout(t);
+  }, [mode]);
+
   function handleSave() {
     const qtyNum = Number(qty);
     const costNum = Number(cost);
@@ -44,17 +55,24 @@ export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
     if (!Number.isFinite(costNum) || costNum < 0) return;
     const { file: current } = loadPortfolioSafe();
     const todayIso = new Date().toISOString().slice(0, 10);
+
+    // Capture the pre-save snapshot so Undo can restore.
+    const prior = current.entries.find((e) => e.cardId === cardId) ?? null;
+
     let next;
     if (existing !== null) {
       // Update in place (qty + cost only).
       next = updateEntry(current, cardId, { qty: qtyNum, costValue: costNum });
+      setJustSavedKind('updated');
     } else {
       next = addEntry(current, { cardId, qty: qtyNum, costValue: costNum, costCurrency: currency }, rates, todayIso);
+      setJustSavedKind('added');
     }
     savePortfolio(next);
     const found = next.entries.find((e) => e.cardId === cardId) ?? null;
     setExisting(found);
-    setMode('idle');
+    setPriorEntry(prior);
+    setMode('justSaved');
   }
 
   function handleRemove() {
@@ -67,6 +85,30 @@ export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
     setCost('');
   }
 
+  function handleUndo() {
+    const { file: current } = loadPortfolioSafe();
+    let next;
+    if (priorEntry === null) {
+      // Fresh add → remove the entry.
+      next = removeEntry(current, cardId);
+    } else {
+      // Update → restore prior qty + costValue (currency doesn't change on update).
+      next = updateEntry(current, cardId, { qty: priorEntry.qty, costValue: priorEntry.costValue });
+    }
+    savePortfolio(next);
+    const found = next.entries.find((e) => e.cardId === cardId) ?? null;
+    setExisting(found);
+    if (found) {
+      setQty(String(found.qty));
+      setCost(String(found.costValue));
+    } else {
+      setQty('1');
+      setCost('');
+    }
+    setPriorEntry(null);
+    setMode('idle');
+  }
+
   if (mode === 'editing') {
     return (
       <div class="portfolio-add-btn">
@@ -76,6 +118,19 @@ export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
           <button type="button" data-action="save" onClick={handleSave}>Save</button>
           <button type="button" onClick={() => setMode('idle')}>Cancel</button>
           {existing !== null && <button type="button" data-action="remove" onClick={handleRemove}>Remove</button>}
+        </div>
+        <Styles />
+      </div>
+    );
+  }
+
+  if (mode === 'justSaved' && existing !== null) {
+    const kindLabel = justSavedKind === 'added' ? 'Added' : 'Updated';
+    return (
+      <div class="portfolio-add-btn">
+        <div class="just-saved-row">
+          <span class="just-saved-text">✓ {kindLabel} (×{existing.qty})</span>
+          <button type="button" class="undo-btn" data-action="undo" onClick={handleUndo}>Undo</button>
         </div>
         <Styles />
       </div>
@@ -145,6 +200,32 @@ function Styles() {
       }
       .portfolio-add-btn .form-row button[data-action=remove] {
         color: #b23a3a; border-color: #d9c9a3;
+      }
+      .portfolio-add-btn .just-saved-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        border: 1px solid var(--accent);
+        border-radius: 999px;
+        background: rgba(200, 111, 61, 0.08);
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--accent);
+      }
+      .portfolio-add-btn .just-saved-row .undo-btn {
+        padding: 0.1rem 0.5rem;
+        border: 1px solid var(--accent);
+        border-radius: 999px;
+        background: var(--accent);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .portfolio-add-btn .just-saved-row .undo-btn:hover {
+        background: transparent;
+        color: var(--accent);
       }
     `}</style>
   );
