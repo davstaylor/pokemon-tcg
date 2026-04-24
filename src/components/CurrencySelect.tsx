@@ -2,7 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { SUPPORTED_CURRENCIES, CURRENCY_GLYPH, CURRENCY_DECIMALS, type SupportedCurrency } from '@/data/currency-schema';
 
 const STORAGE_KEY = 'pokemon-tcg-currency';
-const DEFAULT: SupportedCurrency = 'EUR';
+const DEFAULT: SupportedCurrency = 'GBP';
 
 function detectDefault(): SupportedCurrency {
   try {
@@ -43,7 +43,8 @@ export default function CurrencySelect({ rates }: { rates: { USD: number; GBP: n
   useEffect(() => {
     const detected = detectDefault();
     setCurrent(detected);
-    if (detected !== DEFAULT) applyCurrencyToDOM(detected, rates);
+    if (detected !== 'EUR') applyCurrencyToDOM(detected, rates);
+    window.dispatchEvent(new CustomEvent('currencychange', { detail: { currency: detected } }));
   }, []);
 
   function onChange(e: Event) {
@@ -51,6 +52,7 @@ export default function CurrencySelect({ rates }: { rates: { USD: number; GBP: n
     setCurrent(next);
     try { localStorage.setItem(STORAGE_KEY, next); } catch {}
     applyCurrencyToDOM(next, rates);
+    window.dispatchEvent(new CustomEvent('currencychange', { detail: { currency: next } }));
   }
 
   return (
