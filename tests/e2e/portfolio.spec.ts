@@ -36,6 +36,9 @@ test('summary dashboard shows 4 stats when portfolio has entries', async ({ page
         { cardId: 'base1-4', qty: 1, costValue: 300, costCurrency: 'GBP', addedAt: '2026-04-20' },
       ],
     }));
+    // Pin the display currency so the test is deterministic across locales
+    // (otherwise CurrencySelect's locale inference may default to USD on en-US runners).
+    localStorage.setItem('pokemon-tcg-currency', 'GBP');
   });
   await page.goto('portfolio/');
   // Summary card renders once the sparkline-dump fetch resolves.
