@@ -5,8 +5,6 @@ import { PortfolioFileSchema } from './portfolio-schema';
 
 export const PORTFOLIO_STORAGE_KEY = 'pokemon-tcg:portfolio';
 
-const EMPTY_FILE: PortfolioFile = { version: 1, entries: [] };
-
 export function loadPortfolio(): PortfolioFile {
   return loadPortfolioSafe().file;
 }
@@ -14,12 +12,12 @@ export function loadPortfolio(): PortfolioFile {
 export function loadPortfolioSafe(): { file: PortfolioFile; corrupted: boolean } {
   try {
     const raw = localStorage.getItem(PORTFOLIO_STORAGE_KEY);
-    if (raw === null) return { file: EMPTY_FILE, corrupted: false };
+    if (raw === null) return { file: { version: 1, entries: [] }, corrupted: false };
     const parsed = JSON.parse(raw);
     const validated = PortfolioFileSchema.parse(parsed);
     return { file: validated, corrupted: false };
   } catch {
-    return { file: EMPTY_FILE, corrupted: true };
+    return { file: { version: 1, entries: [] }, corrupted: true };
   }
 }
 

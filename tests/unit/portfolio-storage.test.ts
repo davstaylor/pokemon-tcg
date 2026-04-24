@@ -107,7 +107,7 @@ describe('removeEntry', () => {
       version: 1 as const,
       entries: [{ cardId: 'a', qty: 1, costValue: 10, costCurrency: 'GBP' as const, addedAt: '2026-04-22' }],
     };
-    expect(removeEntry(start, 'missing')).toEqual(start);
+    expect(removeEntry(start, 'missing')).toBe(start);
   });
 });
 
