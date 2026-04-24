@@ -14,34 +14,6 @@ function detectCurrency(): SupportedCurrency {
   return 'GBP';
 }
 
-// Session-scoped fallback key. Survives page.reload() since sessionStorage is
-// not cleared between navigations within the same tab.  Used so that the
-// "Owned" indicator stays correct even when a test's addInitScript clears the
-// main portfolio localStorage key on reload.
-function sessionKey(cardId: string) {
-  return `pokemon-tcg:card-owned:${cardId}`;
-}
-
-function readSessionEntry(cardId: string): PortfolioEntry | null {
-  try {
-    const raw = sessionStorage.getItem(sessionKey(cardId));
-    if (!raw) return null;
-    return JSON.parse(raw) as PortfolioEntry;
-  } catch {
-    return null;
-  }
-}
-
-function writeSessionEntry(entry: PortfolioEntry | null, cardId: string) {
-  try {
-    if (entry === null) {
-      sessionStorage.removeItem(sessionKey(cardId));
-    } else {
-      sessionStorage.setItem(sessionKey(cardId), JSON.stringify(entry));
-    }
-  } catch {}
-}
-
 interface Props {
   cardId: string;
   cardName: string;
@@ -58,12 +30,8 @@ export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
   useEffect(() => {
     setCurrency(detectCurrency());
 
-    // Prefer the main localStorage portfolio; fall back to the session cache
-    // so that a page.reload() in tests (which re-runs addInitScript and clears
-    // localStorage) still sees the correct owned state within the same tab.
     const { file } = loadPortfolioSafe();
-    const fromStorage = file.entries.find((e) => e.cardId === cardId) ?? null;
-    const found = fromStorage ?? readSessionEntry(cardId);
+    const found = file.entries.find((e) => e.cardId === cardId) ?? null;
     setExisting(found);
     if (found) {
       setQty(String(found.qty));
@@ -94,9 +62,6 @@ export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
     }
     savePortfolio(next);
     const found = next.entries.find((e) => e.cardId === cardId) ?? null;
-    // Mirror to sessionStorage so reload() sees the same state even if a test's
-    // addInitScript has cleared the main localStorage key.
-    writeSessionEntry(found, cardId);
     setExisting(found);
     setMode('idle');
   }
@@ -105,7 +70,6 @@ export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
     const { file: current } = loadPortfolioSafe();
     const next = removeEntry(current, cardId);
     savePortfolio(next);
-    writeSessionEntry(null, cardId);
     setExisting(null);
     setMode('idle');
     setQty('1');
@@ -128,11 +92,11 @@ export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
   }
 
   return (
-    <div class="portfolio-add-btn" onClick={() => setMode('editing')}>
+    <div class="portfolio-add-btn">
       {existing === null ? (
-        <button type="button">+ Add to my cards</button>
+        <button type="button" onClick={() => setMode('editing')}>+ Add to my cards</button>
       ) : (
-        <button type="button">✓ Owned (×{existing.qty}) — Update</button>
+        <button type="button" onClick={() => setMode('editing')}>✓ Owned (×{existing.qty}) — Update</button>
       )}
       <Styles />
     </div>

@@ -47,16 +47,21 @@ test('card page set line links to /set/[setId]/', async ({ page }) => {
 
 test('card page "Add to my cards" button adds to portfolio', async ({ page }) => {
   await page.addInitScript(() => {
-    localStorage.removeItem('pokemon-tcg:portfolio');
-    // Pin display currency for locale determinism.
+    // Pin display currency for locale determinism. (Re-runs on every nav; harmless.)
     localStorage.setItem('pokemon-tcg-currency', 'GBP');
   });
   await page.goto('card/base1-4');
-  const button = page.locator('.portfolio-add-btn');
-  await expect(button).toBeVisible();
-  await expect(button).toHaveText(/Add to my cards/);
+  // Clear the portfolio ONCE, AFTER the first navigation. Subsequent reloads
+  // will NOT re-clear (addInitScript no longer touches this key).
+  await page.evaluate(() => localStorage.removeItem('pokemon-tcg:portfolio'));
+  // We need the cleared state to take effect on the page — reload once.
+  await page.reload();
 
-  await button.click();
+  const wrapper = page.locator('.portfolio-add-btn');
+  await expect(wrapper).toBeVisible();
+  await expect(wrapper).toHaveText(/Add to my cards/);
+
+  await wrapper.locator('button').click();
   await page.locator('.portfolio-add-btn input[name=qty]').fill('1');
   await page.locator('.portfolio-add-btn input[name=cost]').fill('100');
   await page.locator('.portfolio-add-btn button[data-action=save]').click();
@@ -64,7 +69,7 @@ test('card page "Add to my cards" button adds to portfolio', async ({ page }) =>
   // Button transforms to "Owned" state.
   await expect(page.locator('.portfolio-add-btn')).toContainText(/Owned/);
 
-  // Reload — state persists via localStorage.
+  // Reload — state persists via localStorage (addInitScript no longer clears it).
   await page.reload();
   await expect(page.locator('.portfolio-add-btn')).toContainText(/Owned/);
 });
