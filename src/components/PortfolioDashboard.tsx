@@ -2,21 +2,13 @@ import { useEffect, useState } from 'preact/hooks';
 import { loadPortfolioSafe, addEntry, savePortfolio, updateEntry, removeEntry } from '@/data/portfolio-storage';
 import { fetchSparklineWithCache } from '@/data/sparkline-fetch';
 import { type ExchangeRates, type SupportedCurrency, CURRENCY_GLYPH, CURRENCY_DECIMALS } from '@/data/currency-schema';
+import { detectDisplayCurrency } from '@/data/currency-storage';
 import { convertBetween } from '@/data/currency';
 import { computeSummary, computeTrendSeries, type PortfolioSummary, type TrendPoint } from '@/data/portfolio-aggregate';
 import { PortfolioFileSchema, type PortfolioFile } from '@/data/portfolio-schema';
 import type { SparklineDump } from '@/data/history-schema';
 import type { CardIndex } from '@/data/card-index';
-
-const CURRENCY_STORAGE_KEY = 'pokemon-tcg-currency';
-
-function detectCurrency(): SupportedCurrency {
-  try {
-    const saved = localStorage.getItem(CURRENCY_STORAGE_KEY);
-    if (saved === 'EUR' || saved === 'USD' || saved === 'GBP' || saved === 'JPY') return saved;
-  } catch {}
-  return 'GBP';
-}
+import type { PagefindResult, Pagefind } from '@/data/pagefind-types';
 
 function formatCurrencyValue(value: number, currency: SupportedCurrency, signed = false): string {
   const decimals = CURRENCY_DECIMALS[currency];
@@ -31,16 +23,6 @@ function formatPct(decimal: number): string {
   const sign = decimal >= 0 ? '+' : '−';
   return `${sign}${pct.replace('-', '')}%`;
 }
-
-type PagefindResult = {
-  id: string;
-  url: string;
-  excerpt?: string;
-  meta: { title?: string; subtitle?: string; thumb?: string; cardId?: string };
-};
-type Pagefind = {
-  search: (q: string) => Promise<{ results: Array<{ id: string; data: () => Promise<PagefindResult> }> }>;
-};
 
 const ADD_FORM_STYLES = `
   .portfolio-add {
@@ -275,7 +257,7 @@ export default function PortfolioDashboard({ rates, cardIndex }: { rates: Exchan
   useEffect(() => {
     const { file } = loadPortfolioSafe();
     setFile(file);
-    setCurrency(detectCurrency());
+    setCurrency(detectDisplayCurrency());
 
     fetchSparklineWithCache()
       .then((d) => setDump(d))

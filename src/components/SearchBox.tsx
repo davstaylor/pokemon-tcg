@@ -1,17 +1,6 @@
 import { useState, useEffect } from 'preact/hooks';
-
-type PagefindResult = {
-  id: string;
-  url: string;
-  excerpt?: string;
-  meta: { title?: string; subtitle?: string; thumb?: string; cardId?: string };
-};
-
-type Pagefind = {
-  search: (q: string) => Promise<{ results: Array<{ id: string; data: () => Promise<PagefindResult> }> }>;
-};
-
-declare global { interface Window { pagefind?: Pagefind } }
+import type { PagefindResult, Pagefind } from '@/data/pagefind-types';
+import '@/data/pagefind-types';
 
 // Cap the number of pagefind results we resolve per query. Typical name
 // searches return dozens; bulk/open-ended queries (e.g. "pika") can return

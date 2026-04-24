@@ -1,25 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { SUPPORTED_CURRENCIES, CURRENCY_GLYPH, CURRENCY_DECIMALS, type SupportedCurrency } from '@/data/currency-schema';
-
-const STORAGE_KEY = 'pokemon-tcg-currency';
-const DEFAULT: SupportedCurrency = 'GBP';
-
-function detectDefault(): SupportedCurrency {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && (SUPPORTED_CURRENCIES as readonly string[]).includes(saved)) {
-      return saved as SupportedCurrency;
-    }
-  } catch {}
-  try {
-    const locale = Intl.NumberFormat().resolvedOptions().locale;
-    const region = locale.split('-')[1]?.toUpperCase();
-    if (region === 'US') return 'USD';
-    if (region === 'GB') return 'GBP';
-    if (region === 'JP') return 'JPY';
-  } catch {}
-  return DEFAULT;
-}
+import { CURRENCY_STORAGE_KEY, detectDisplayCurrency } from '@/data/currency-storage';
 
 function applyCurrencyToDOM(next: SupportedCurrency, rates: { USD: number; GBP: number; JPY: number }) {
   document.querySelectorAll<HTMLElement>('[data-price-currency-field]').forEach((el) => {
@@ -38,10 +19,10 @@ function applyCurrencyToDOM(next: SupportedCurrency, rates: { USD: number; GBP: 
 }
 
 export default function CurrencySelect({ rates }: { rates: { USD: number; GBP: number; JPY: number } }) {
-  const [current, setCurrent] = useState<SupportedCurrency>(DEFAULT);
+  const [current, setCurrent] = useState<SupportedCurrency>('GBP');
 
   useEffect(() => {
-    const detected = detectDefault();
+    const detected = detectDisplayCurrency();
     setCurrent(detected);
     if (detected !== 'EUR') applyCurrencyToDOM(detected, rates);
     window.dispatchEvent(new CustomEvent('currencychange', { detail: { currency: detected } }));
@@ -50,7 +31,7 @@ export default function CurrencySelect({ rates }: { rates: { USD: number; GBP: n
   function onChange(e: Event) {
     const next = (e.target as HTMLSelectElement).value as SupportedCurrency;
     setCurrent(next);
-    try { localStorage.setItem(STORAGE_KEY, next); } catch {}
+    try { localStorage.setItem(CURRENCY_STORAGE_KEY, next); } catch {}
     applyCurrencyToDOM(next, rates);
     window.dispatchEvent(new CustomEvent('currencychange', { detail: { currency: next } }));
   }

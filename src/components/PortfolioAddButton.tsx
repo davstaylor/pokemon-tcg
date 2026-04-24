@@ -3,16 +3,7 @@ import { loadPortfolioSafe, savePortfolio, addEntry, removeEntry, updateEntry } 
 import type { PortfolioEntry } from '@/data/portfolio-schema';
 import { type SupportedCurrency, CURRENCY_GLYPH } from '@/data/currency-schema';
 import type { ExchangeRates } from '@/data/currency-schema';
-
-const CURRENCY_STORAGE_KEY = 'pokemon-tcg-currency';
-
-function detectCurrency(): SupportedCurrency {
-  try {
-    const saved = localStorage.getItem(CURRENCY_STORAGE_KEY);
-    if (saved === 'EUR' || saved === 'USD' || saved === 'GBP' || saved === 'JPY') return saved;
-  } catch {}
-  return 'GBP';
-}
+import { detectDisplayCurrency } from '@/data/currency-storage';
 
 interface Props {
   cardId: string;
@@ -28,7 +19,7 @@ export default function PortfolioAddButton({ cardId, cardName, rates }: Props) {
   const [currency, setCurrency] = useState<SupportedCurrency>('GBP');
 
   useEffect(() => {
-    setCurrency(detectCurrency());
+    setCurrency(detectDisplayCurrency());
 
     const { file } = loadPortfolioSafe();
     const found = file.entries.find((e) => e.cardId === cardId) ?? null;
