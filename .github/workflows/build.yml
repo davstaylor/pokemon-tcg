@@ -13,6 +13,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write                # needed for cache/save
 
 concurrency:
   group: pages
@@ -48,6 +49,23 @@ jobs:
         continue-on-error: true
         env:
           WORKER_URL: ${{ secrets.WORKER_URL }}
+
+      # Snapshot the freshly-fetched data so prices-fast-poll can rebuild
+      # without a TCGdex round-trip. Unique key per run so saves never
+      # conflict; fast-poll uses `restore-keys: pokemon-data-` to pick the
+      # most-recent matching entry. Cache lives 7 days, easily long enough
+      # for the next nightly to refresh it.
+      - name: Snapshot data/ for fast-poll
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            data/cards.json
+            data/prices-baseline.json
+            data/sparkline-snapshot.json
+            data/range-snapshot.json
+          key: pokemon-data-${{ github.run_id }}
+
       - name: Build static site
         run: npm run build:site
         env:

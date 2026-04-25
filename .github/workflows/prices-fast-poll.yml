@@ -1,12 +1,18 @@
 name: prices-fast-poll
 
-# Polls Cardmarket via TCGdex every 5 minutes, commits data/prices-fresh.json
-# if anything changed. The actual rebuild + Pages deploy is handled by
-# build.yml, which runs nightly + on push. This workflow used to also run
-# `npm run build:fixtures` and deploy the result — that was a fixture build
-# (FIXTURES=1, only 2 cards) and silently clobbered the full 23k-card
-# nightly artifact. We now commit the prices and let the next full build
-# pick them up.
+# Polls Cardmarket via TCGdex every 5 minutes and refreshes the live site's
+# prices without re-fetching the 23k-card catalog.
+#
+# How: build.yml saves a snapshot of data/ (cards.json, prices-baseline,
+# sparklines, range) to actions/cache after each full nightly. This
+# workflow restores that snapshot, fetches fresh prices into
+# data/prices-fresh.json, and runs build:site (astro + pagefind only — no
+# TCGdex round-trip) using the cached catalog.
+#
+# Fallback: if the cache is missing (very first run, or evicted after 7d),
+# we commit the fresh prices and skip the rebuild. The next full build
+# (nightly @ 02:00 UTC, or any push, or manual workflow_dispatch on
+# build.yml) regenerates the snapshot and resumes 5-min freshness.
 
 on:
   schedule:
@@ -14,15 +20,20 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write             # needs to commit data/prices-fresh.json
+  contents: write             # commit data/prices-fresh.json
+  pages: write
+  id-token: write
 
 concurrency:
-  group: price-update
-  cancel-in-progress: false   # let runs queue, don't drop updates
+  group: pages                # share the deploy lock with build.yml
+  cancel-in-progress: false
 
 jobs:
-  poll-prices:
+  poll-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      should-deploy: ${{ steps.gate.outputs.should-deploy }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,18 +43,82 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+
+      # Pull the most-recent data/ snapshot the nightly produced. The
+      # primary `key` is set to a value that never matches, forcing the
+      # restore-keys prefix path. cache-hit is reported via outputs.
+      - name: Restore catalog snapshot from nightly cache
+        id: data-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            data/cards.json
+            data/prices-baseline.json
+            data/sparkline-snapshot.json
+            data/range-snapshot.json
+          key: pokemon-data-fast-poll-no-exact-match
+          restore-keys: |
+            pokemon-data-
+
       - name: Fetch fresh prices
         run: npm run fetch-prices-fresh
 
-      - name: Commit prices-fresh.json if changed
+      # Refresh exchange rates too — Frankfurter is fast, and stale FX
+      # data shows wrong currency conversions in the displayed UI.
+      - name: Fetch exchange rates
+        run: npm run fetch-exchange-rates
+
+      - name: Commit refreshed data files if changed
+        id: commit
         run: |
-          if git diff --quiet data/prices-fresh.json; then
-            echo "No price changes — skipping commit."
-          else
+          changed=false
+          if ! git diff --quiet data/prices-fresh.json data/exchange-rates.json; then
+            changed=true
+          fi
+          if [ "$changed" = "true" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/prices-fresh.json
+            git add data/prices-fresh.json data/exchange-rates.json
             git commit -m "chore(prices): update fresh prices"
             git push
-            echo "Committed fresh prices. Next build.yml run (nightly @ 02:00 UTC, or any push) will pick them up."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No price or rate changes — nothing to deploy."
           fi
+
+      # Only continue to a deploy if (a) we have a cached catalog AND
+      # (b) something actually changed. Otherwise short-circuit cleanly.
+      - name: Decide whether to rebuild
+        id: gate
+        run: |
+          if [ -f "data/cards.json" ] && [ "${{ steps.commit.outputs.changed }}" = "true" ]; then
+            echo "should-deploy=true" >> "$GITHUB_OUTPUT"
+            echo "Cache hit + price changes — rebuilding."
+          else
+            echo "should-deploy=false" >> "$GITHUB_OUTPUT"
+            if [ ! -f "data/cards.json" ]; then
+              echo "No cards.json from cache — next full build.yml run will populate it."
+            fi
+          fi
+
+      - name: Build static site (catalog from cache, prices from fresh fetch)
+        if: steps.gate.outputs.should-deploy == 'true'
+        run: npm run build:site
+        env:
+          PUBLIC_BUILD_TIMESTAMP: ${{ github.run_started_at }}
+
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.gate.outputs.should-deploy == 'true'
+        with: { path: dist }
+
+  deploy:
+    needs: poll-and-deploy
+    if: needs.poll-and-deploy.outputs.should-deploy == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment
