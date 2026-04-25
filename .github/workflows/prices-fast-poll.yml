@@ -1,5 +1,13 @@
 name: prices-fast-poll
 
+# Polls Cardmarket via TCGdex every 5 minutes, commits data/prices-fresh.json
+# if anything changed. The actual rebuild + Pages deploy is handled by
+# build.yml, which runs nightly + on push. This workflow used to also run
+# `npm run build:fixtures` and deploy the result — that was a fixture build
+# (FIXTURES=1, only 2 cards) and silently clobbered the full 23k-card
+# nightly artifact. We now commit the prices and let the next full build
+# pick them up.
+
 on:
   schedule:
     - cron: '*/5 * * * *'     # every 5 minutes
@@ -7,15 +15,13 @@ on:
 
 permissions:
   contents: write             # needs to commit data/prices-fresh.json
-  pages: write
-  id-token: write
 
 concurrency:
   group: price-update
   cancel-in-progress: false   # let runs queue, don't drop updates
 
 jobs:
-  poll-and-deploy:
+  poll-prices:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,35 +38,12 @@ jobs:
       - name: Commit prices-fresh.json if changed
         run: |
           if git diff --quiet data/prices-fresh.json; then
-            echo "No price changes — skipping commit and deploy."
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No price changes — skipping commit."
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add data/prices-fresh.json
             git commit -m "chore(prices): update fresh prices"
             git push
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Committed fresh prices. Next build.yml run (nightly @ 02:00 UTC, or any push) will pick them up."
           fi
-        id: commit
-
-      - name: Build (fixture-mode pipeline, picks up fresh prices via merge)
-        if: steps.commit.outputs.changed == 'true'
-        run: npm run build:fixtures
-        env:
-          PUBLIC_BUILD_TIMESTAMP: ${{ github.run_started_at }}
-
-      - uses: actions/upload-pages-artifact@v3
-        if: steps.commit.outputs.changed == 'true'
-        with: { path: dist }
-
-  deploy:
-    needs: poll-and-deploy
-    if: needs.poll-and-deploy.result == 'success'
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/deploy-pages@v4
-        id: deployment
