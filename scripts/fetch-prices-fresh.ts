@@ -13,6 +13,28 @@ const OUT_FILE = resolve(REPO_ROOT, 'data', 'prices-fresh.json');
 
 type TrackedConfig = { tracked: string[] };
 
+// TCGdex's free API occasionally hits a 10s connect-timeout blip on the
+// per-set list call — historically ~7% of fast-poll runs (every 5min, ~288/day)
+// failed this way. Three attempts with linear backoff masks the transient
+// noise without hiding a real outage; the >50% per-card threshold below still
+// fires if TCGdex is genuinely down.
+async function withRetry<T>(label: string, fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i < attempts - 1) {
+        const delayMs = 1000 * (i + 1);
+        console.warn(`${label} attempt ${i + 1}/${attempts} failed: ${(err as Error).message} — retrying in ${delayMs}ms`);
+        await new Promise((r) => setTimeout(r, delayMs));
+      }
+    }
+  }
+  throw lastErr;
+}
+
 async function main() {
   const start = Date.now();
 
@@ -31,7 +53,7 @@ async function main() {
   let attempts = 0;
 
   for (const setId of config.tracked) {
-    const setData = await tcgdex.fetch('sets', setId);
+    const setData = await withRetry(`fetch sets/${setId}`, () => tcgdex.fetch('sets', setId));
     if (!setData || !Array.isArray(setData.cards)) {
       throw new Error(`Set "${setId}" not found or has no cards at TCGdex — check tracked-sets.yaml`);
     }
