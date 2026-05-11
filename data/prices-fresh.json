@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-10T23:45:23.570Z",
+  "generatedAt": "2026-05-11T01:31:11.120Z",
   "records": {
     "base1-1": {
       "cardId": "base1-1",
@@ -7,12 +7,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 45.87,
+          "trend": 43.26,
           "low": 7.45,
-          "avg30": 56.89,
-          "avg7": 42.82,
-          "avg1": 63.4,
-          "updatedAt": "2026-05-10T00:43:15.000Z"
+          "avg30": 56.12,
+          "avg7": 44.77,
+          "avg1": 38.48,
+          "updatedAt": "2026-05-11T00:48:21.000Z"
         }
       }
     },
@@ -22,12 +22,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 99.22,
+          "trend": 97.02,
           "low": 23,
-          "avg30": 117.89,
-          "avg7": 99.74,
-          "avg1": 97.5,
-          "updatedAt": "2026-05-10T00:43:15.000Z"
+          "avg30": 118,
+          "avg7": 86.66,
+          "avg1": 94.53,
+          "updatedAt": "2026-05-11T00:48:21.000Z"
         }
       }
     },
@@ -37,12 +37,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 34.51,
+          "trend": 33.22,
           "low": 4,
-          "avg30": 35.91,
-          "avg7": 31.69,
-          "avg1": 47.83,
-          "updatedAt": "2026-05-10T00:43:15.000Z"
+          "avg30": 35.54,
+          "avg7": 28.71,
+          "avg1": 24.33,
+          "updatedAt": "2026-05-11T00:48:21.000Z"
         }
       }
     },
@@ -52,12 +52,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 285.51,
+          "trend": 294.91,
           "low": 80,
-          "avg30": 319.95,
-          "avg7": 369.28,
-          "avg1": 89.99,
-          "updatedAt": "2026-05-10T00:43:15.000Z"
+          "avg30": 306.72,
+          "avg7": 378.76,
+          "avg1": 301.5,
+          "updatedAt": "2026-05-11T00:48:21.000Z"
         }
       }
     },
