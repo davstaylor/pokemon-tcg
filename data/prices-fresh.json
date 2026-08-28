@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-27T15:29:11.067Z",
+  "generatedAt": "2026-08-28T00:30:16.336Z",
   "records": {
     "base1-1": {
       "cardId": "base1-1",
@@ -7,12 +7,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 120.42,
-          "low": 9.99,
+          "trend": 114.21,
+          "low": 10,
           "avg30": 64.05,
           "avg7": 49.77,
           "avg1": 14,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.491Z"
         }
       }
     },
@@ -22,12 +22,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 128.71,
+          "trend": 124.13,
           "low": 24.99,
           "avg30": 129.51,
           "avg7": 188.07,
           "avg1": 44.95,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.491Z"
         }
       }
     },
@@ -37,12 +37,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 94.09,
+          "trend": 88,
           "low": 5,
           "avg30": 45.93,
           "avg7": 92.23,
           "avg1": 462.33,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.491Z"
         }
       }
     },
@@ -52,12 +52,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 568.03,
-          "low": 75,
+          "trend": 607.18,
+          "low": 102,
           "avg30": 445.32,
           "avg7": 594.65,
           "avg1": 1552.5,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.491Z"
         }
       }
     },
@@ -67,12 +67,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 22.67,
+          "trend": 23.23,
           "low": 5,
           "avg30": 23.01,
           "avg7": 27.98,
           "avg1": 16.99,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.491Z"
         }
       }
     },
@@ -82,12 +82,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 25.91,
-          "low": 1.92,
+          "trend": 26.77,
+          "low": 2,
           "avg30": 20.42,
           "avg7": 21.78,
           "avg1": 5.98,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.491Z"
         }
       }
     },
@@ -97,12 +97,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 19.28,
+          "trend": 17.66,
           "low": 0.9,
           "avg30": 14.91,
           "avg7": 15.2,
           "avg1": 5.59,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -112,12 +112,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 12.15,
+          "trend": 13.75,
           "low": 0.99,
           "avg30": 14.74,
           "avg7": 11.57,
           "avg1": 6.66,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.441Z"
         }
       }
     },
@@ -127,12 +127,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 28.77,
-          "low": 3.99,
+          "trend": 26.51,
+          "low": 4,
           "avg30": 21.55,
           "avg7": 23.82,
           "avg1": 30.1,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -142,12 +142,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 42.87,
+          "trend": 46.96,
           "low": 2.99,
           "avg30": 23.22,
           "avg7": 21.82,
           "avg1": 190,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -157,12 +157,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 29.92,
+          "trend": 39.4,
           "low": 4.9,
           "avg30": 34.25,
           "avg7": 29.84,
           "avg1": 41.66,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -172,12 +172,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 23.43,
+          "trend": 21.64,
           "low": 1,
           "avg30": 17.04,
           "avg7": 26.61,
           "avg1": 6.81,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -187,12 +187,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 40.1,
+          "trend": 37.85,
           "low": 2.5,
           "avg30": 30.02,
           "avg7": 42.19,
           "avg1": 85,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -202,12 +202,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 52.41,
+          "trend": 48.7,
           "low": 8,
           "avg30": 37.53,
           "avg7": 31.65,
           "avg1": 56.66,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -217,12 +217,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 137.24,
+          "trend": 121.92,
           "low": 19.95,
           "avg30": 141.39,
           "avg7": 71.43,
           "avg1": 100,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -232,12 +232,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 45.32,
+          "trend": 48.09,
           "low": 4,
           "avg30": 42.58,
           "avg7": 49.19,
           "avg1": 16.5,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -247,12 +247,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 5.19,
+          "trend": 4.9,
           "low": 0.1,
           "avg30": 6.15,
           "avg7": 4.72,
           "avg1": 2.34,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -262,12 +262,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 12.81,
+          "trend": 13.17,
           "low": 1.49,
           "avg30": 14.31,
           "avg7": 14.31,
           "avg1": 9.48,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -277,12 +277,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 9.16,
+          "trend": 10.07,
           "low": 0.4,
           "avg30": 9.55,
           "avg7": 7.32,
           "avg1": 11.99,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -292,12 +292,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 7.13,
+          "trend": 7.55,
           "low": 0.2,
           "avg30": 6.85,
           "avg7": 4.74,
           "avg1": 10.27,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -307,12 +307,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 10.18,
+          "trend": 9.75,
           "low": 0.4,
           "avg30": 7.15,
           "avg7": 5.29,
           "avg1": 3.66,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -322,12 +322,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 8.32,
+          "trend": 8.55,
           "low": 0.5,
           "avg30": 10.7,
           "avg7": 9.04,
           "avg1": 8.1,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -337,12 +337,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 6.17,
-          "low": 0.08,
+          "trend": 5.73,
+          "low": 0.1,
           "avg30": 5.43,
           "avg7": 6.95,
           "avg1": 5.02,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -352,12 +352,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.21,
+          "trend": 3.52,
           "low": 0.02,
           "avg30": 2.33,
           "avg7": 3.64,
           "avg1": 1.08,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -367,12 +367,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 4.02,
+          "trend": 3.67,
           "low": 0.16,
           "avg30": 4.03,
           "avg7": 2.17,
           "avg1": 2.48,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -382,12 +382,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.11,
+          "trend": 2.99,
           "low": 0.02,
           "avg30": 3.4,
           "avg7": 4.44,
           "avg1": 0.7,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -402,7 +402,7 @@
           "avg30": 1.6,
           "avg7": 1.67,
           "avg1": 0.57,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -412,12 +412,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.38,
+          "trend": 1.23,
           "low": 0.02,
           "avg30": 1.66,
           "avg7": 1.67,
           "avg1": 0.75,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -427,12 +427,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 4.24,
+          "trend": 3.94,
           "low": 0.05,
           "avg30": 2.69,
           "avg7": 4.36,
           "avg1": 1.92,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -442,12 +442,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.7,
+          "trend": 3.8,
           "low": 0.02,
           "avg30": 5.05,
           "avg7": 3.96,
           "avg1": 3.54,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -457,12 +457,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.55,
+          "trend": 1.51,
           "low": 0.02,
           "avg30": 2.57,
           "avg7": 1.5,
           "avg1": 5.46,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -472,12 +472,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.87,
+          "trend": 3.54,
           "low": 0.03,
           "avg30": 3.4,
           "avg7": 5.4,
           "avg1": 6.9,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -487,12 +487,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 2.39,
+          "trend": 2.29,
           "low": 0.02,
           "avg30": 1.8,
           "avg7": 3.64,
           "avg1": 0.53,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -502,12 +502,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.88,
+          "trend": 0.81,
           "low": 0.02,
           "avg30": 1.35,
           "avg7": 0.65,
           "avg1": 0.3,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -517,12 +517,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 2.13,
+          "trend": 2.85,
           "low": 0.02,
           "avg30": 3.23,
           "avg7": 2.73,
           "avg1": 5.93,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -532,12 +532,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 2.27,
+          "trend": 2,
           "low": 0.02,
           "avg30": 4.48,
           "avg7": 3.05,
           "avg1": 5.47,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -547,12 +547,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.72,
+          "trend": 3.59,
           "low": 0.02,
           "avg30": 3.59,
           "avg7": 3.73,
           "avg1": 5.26,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -562,12 +562,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.22,
+          "trend": 1.13,
           "low": 0.02,
           "avg30": 1.91,
           "avg7": 1.48,
           "avg1": 0.78,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -577,12 +577,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 2.7,
+          "trend": 2.36,
           "low": 0.02,
           "avg30": 3.73,
           "avg7": 3.36,
           "avg1": 3.69,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -592,12 +592,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.91,
+          "trend": 1.81,
           "low": 0.05,
           "avg30": 3.81,
           "avg7": 2.82,
           "avg1": 1.87,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -607,12 +607,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.31,
+          "trend": 1.34,
           "low": 0.02,
           "avg30": 1.92,
           "avg7": 1.26,
           "avg1": 0.63,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -622,12 +622,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 4.53,
+          "trend": 4.83,
           "low": 0.05,
           "avg30": 4.15,
           "avg7": 3.54,
           "avg1": 2.47,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -637,12 +637,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.8,
+          "trend": 1.59,
           "low": 0.02,
           "avg30": 1.78,
           "avg7": 1.98,
           "avg1": 1.72,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.491Z"
         }
       }
     },
@@ -652,12 +652,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 4.3,
+          "trend": 4.59,
           "low": 0.02,
           "avg30": 5,
           "avg7": 5.69,
           "avg1": 2.97,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.491Z"
         }
       }
     },
@@ -667,12 +667,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.62,
+          "trend": 1.67,
           "low": 0.02,
           "avg30": 1.74,
           "avg7": 1.43,
           "avg1": 2.52,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.491Z"
         }
       }
     },
@@ -682,12 +682,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 4.2,
+          "trend": 4.31,
           "low": 0.02,
           "avg30": 3.37,
           "avg7": 5.02,
           "avg1": 3.1,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -697,12 +697,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.4,
+          "trend": 0.61,
           "low": 0.02,
           "avg30": 1.01,
           "avg7": 0.73,
           "avg1": 0.24,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -712,12 +712,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.22,
+          "trend": 1.19,
           "low": 0.02,
           "avg30": 1.29,
           "avg7": 1.17,
           "avg1": 0.87,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -727,12 +727,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.82,
+          "trend": 0.8,
           "low": 0.02,
           "avg30": 0.9,
           "avg7": 0.74,
           "avg1": 0.48,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -742,12 +742,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.06,
+          "trend": 1.04,
           "low": 0.02,
           "avg30": 1.54,
           "avg7": 1.21,
           "avg1": 1.1,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -757,12 +757,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.06,
+          "trend": 1.01,
           "low": 0.02,
           "avg30": 1.43,
           "avg7": 1.33,
           "avg1": 0.29,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -772,12 +772,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.48,
+          "trend": 0.43,
           "low": 0.02,
           "avg30": 0.56,
           "avg7": 0.49,
           "avg1": 0.62,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -787,12 +787,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.73,
+          "trend": 0.7,
           "low": 0.02,
           "avg30": 0.89,
           "avg7": 0.86,
           "avg1": 0.67,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -802,12 +802,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.01,
+          "trend": 0.69,
           "low": 0.02,
           "avg30": 2.66,
           "avg7": 1.69,
           "avg1": 0.74,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -817,12 +817,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.33,
+          "trend": 0.23,
           "low": 0.02,
           "avg30": 1.19,
           "avg7": 0.88,
           "avg1": 0.42,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -832,12 +832,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 2.84,
+          "trend": 2.6,
           "low": 0.02,
           "avg30": 1.6,
           "avg7": 1.57,
           "avg1": 0.3,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -847,12 +847,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.17,
+          "trend": 3.1,
           "low": 0.02,
           "avg30": 3.69,
           "avg7": 1.42,
           "avg1": 1.38,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -862,12 +862,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 6.46,
-          "low": 0.1,
+          "trend": 7.45,
+          "low": 0.2,
           "avg30": 6.65,
           "avg7": 5.52,
           "avg1": 12.5,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -877,12 +877,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.52,
+          "trend": 0.55,
           "low": 0.02,
           "avg30": 0.89,
           "avg7": 0.63,
           "avg1": 0.23,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -892,12 +892,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.42,
+          "trend": 0.45,
           "low": 0.02,
           "avg30": 0.46,
           "avg7": 0.38,
           "avg1": 0.33,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -907,12 +907,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.68,
+          "trend": 0.66,
           "low": 0.02,
           "avg30": 0.77,
           "avg7": 0.75,
           "avg1": 0.51,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -922,12 +922,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.82,
+          "trend": 0.79,
           "low": 0.02,
           "avg30": 1.01,
           "avg7": 1.22,
           "avg1": 0.61,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -937,12 +937,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 4.47,
+          "trend": 4.62,
           "low": 0.02,
           "avg30": 4.71,
           "avg7": 3.6,
           "avg1": 1.46,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -952,12 +952,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.95,
+          "trend": 0.78,
           "low": 0.02,
           "avg30": 1.28,
           "avg7": 1.27,
           "avg1": 2.12,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -967,12 +967,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.58,
+          "trend": 0.49,
           "low": 0.02,
           "avg30": 0.81,
           "avg7": 0.81,
           "avg1": 1.24,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -982,12 +982,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.44,
+          "trend": 1.4,
           "low": 0.02,
           "avg30": 1.32,
           "avg7": 1.82,
           "avg1": 1.47,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -997,12 +997,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.78,
+          "trend": 1.63,
           "low": 0.02,
           "avg30": 2.72,
           "avg7": 1.74,
           "avg1": 0.8,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1012,12 +1012,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.65,
+          "trend": 1.21,
           "low": 0.02,
           "avg30": 1.38,
           "avg7": 1.09,
           "avg1": 0.48,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1027,12 +1027,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.01,
+          "trend": 1.02,
           "low": 0.02,
           "avg30": 0.7,
           "avg7": 1.04,
           "avg1": 0.3,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1042,12 +1042,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 11.48,
+          "trend": 10.8,
           "low": 0.67,
           "avg30": 8.76,
           "avg7": 11.39,
           "avg1": 5.97,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1057,12 +1057,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.27,
-          "low": 0.3,
+          "trend": 3.14,
+          "low": 0.35,
           "avg30": 3.68,
           "avg7": 4.12,
           "avg1": 0.56,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1072,12 +1072,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 9.39,
+          "trend": 8.87,
           "low": 0.15,
           "avg30": 7.48,
           "avg7": 10.29,
           "avg1": 9.05,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1087,12 +1087,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 9.99,
+          "trend": 9.15,
           "low": 1,
           "avg30": 10.83,
           "avg7": 11.58,
           "avg1": 5,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -1102,12 +1102,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 6.97,
+          "trend": 7.61,
           "low": 2.2,
           "avg30": 8.27,
           "avg7": 7.01,
           "avg1": 5.06,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -1117,12 +1117,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.66,
+          "trend": 3.35,
           "low": 0.12,
           "avg30": 4.19,
           "avg7": 3.99,
           "avg1": 1.27,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1132,12 +1132,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 9.68,
+          "trend": 9.11,
           "low": 0.9,
           "avg30": 8.13,
           "avg7": 7.63,
           "avg1": 13,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -1147,12 +1147,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 9.09,
+          "trend": 9.04,
           "low": 1.2,
           "avg30": 7.76,
           "avg7": 9.5,
           "avg1": 19.8,
-          "updatedAt": "2026-08-26T20:57:07.259Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1162,12 +1162,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 22.12,
+          "trend": 20.82,
           "low": 3.49,
           "avg30": 11.69,
           "avg7": 13.47,
           "avg1": 12.25,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -1177,12 +1177,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 5.49,
+          "trend": 5.11,
           "low": 0.05,
           "avg30": 3.81,
           "avg7": 6,
           "avg1": 7.16,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1192,12 +1192,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.82,
+          "trend": 2.21,
           "low": 0.02,
           "avg30": 2.34,
           "avg7": 2.84,
           "avg1": 1.29,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1207,12 +1207,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.7,
+          "trend": 0.74,
           "low": 0.02,
           "avg30": 0.81,
           "avg7": 1.06,
           "avg1": 0.26,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1222,12 +1222,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.39,
+          "trend": 1.71,
           "low": 0.05,
           "avg30": 1.92,
           "avg7": 1.64,
           "avg1": 0.45,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1237,12 +1237,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.48,
+          "trend": 3.61,
           "low": 0.09,
           "avg30": 3.54,
           "avg7": 2.82,
           "avg1": 0.85,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1252,12 +1252,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.68,
+          "trend": 0.71,
           "low": 0.02,
           "avg30": 1.01,
           "avg7": 0.86,
           "avg1": 0.15,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1267,12 +1267,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 2.75,
+          "trend": 2.6,
           "low": 0.02,
           "avg30": 2.74,
           "avg7": 2.69,
           "avg1": 1.68,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1282,12 +1282,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 4.14,
+          "trend": 4.09,
           "low": 0.05,
           "avg30": 3.56,
           "avg7": 3.22,
           "avg1": 1.12,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1297,12 +1297,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.76,
+          "trend": 0.79,
           "low": 0.02,
           "avg30": 0.74,
           "avg7": 0.66,
           "avg1": 0.18,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -1312,12 +1312,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.4,
+          "trend": 1.49,
           "low": 0.02,
           "avg30": 0.96,
           "avg7": 1.14,
           "avg1": 3.41,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1327,12 +1327,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 3.61,
+          "trend": 3.54,
           "low": 0.04,
           "avg30": 3.76,
           "avg7": 3.86,
           "avg1": 2.23,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -1342,12 +1342,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.44,
+          "trend": 0.39,
           "low": 0.02,
           "avg30": 0.44,
           "avg7": 0.43,
           "avg1": 0.2,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1357,12 +1357,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.76,
+          "trend": 0.7,
           "low": 0.02,
           "avg30": 0.49,
           "avg7": 0.65,
           "avg1": 0.16,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1372,12 +1372,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.69,
+          "trend": 0.65,
           "low": 0.02,
           "avg30": 0.62,
           "avg7": 0.8,
           "avg1": 0.73,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.460Z"
         }
       }
     },
@@ -1387,12 +1387,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.23,
+          "trend": 0.24,
           "low": 0.02,
           "avg30": 0.27,
           "avg7": 0.25,
           "avg1": 0.18,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -1402,12 +1402,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.26,
+          "trend": 0.25,
           "low": 0.02,
           "avg30": 0.25,
           "avg7": 0.19,
           "avg1": 0.16,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1417,12 +1417,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.52,
+          "trend": 0.5,
           "low": 0.02,
           "avg30": 0.54,
           "avg7": 0.42,
           "avg1": 0.06,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1432,12 +1432,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 4.8,
+          "trend": 4.66,
           "low": 0.05,
           "avg30": 4.23,
           "avg7": 3,
           "avg1": 2.99,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1447,12 +1447,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.91,
+          "trend": 0.8,
           "low": 0.02,
           "avg30": 0.31,
           "avg7": 0.3,
           "avg1": 0.45,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1462,12 +1462,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 1.21,
+          "trend": 1.07,
           "low": 0.02,
           "avg30": 0.35,
           "avg7": 0.22,
           "avg1": 0.38,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -1477,12 +1477,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.34,
+          "trend": 0.29,
           "low": 0.02,
           "avg30": 0.26,
           "avg7": 0.23,
           "avg1": 0.23,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.511Z"
         }
       }
     },
@@ -1492,12 +1492,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.28,
+          "trend": 0.32,
           "low": 0.02,
           "avg30": 0.45,
           "avg7": 0.32,
           "avg1": 0.31,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1507,12 +1507,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.37,
+          "trend": 0.32,
           "low": 0.02,
           "avg30": 0.36,
           "avg7": 0.3,
           "avg1": 0.25,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     },
@@ -1522,12 +1522,12 @@
         "cardmarket": {
           "source": "cardmarket",
           "unit": "EUR",
-          "trend": 0.13,
+          "trend": 0.08,
           "low": 0.02,
           "avg30": 0.37,
           "avg7": 0.23,
           "avg1": 0.21,
-          "updatedAt": "2026-08-26T20:57:07.257Z"
+          "updatedAt": "2026-08-27T20:57:07.490Z"
         }
       }
     }
